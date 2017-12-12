@@ -1,0 +1,8 @@
+- name: K8s common configurations
+  hosts: environment
+  any_errors_fatal: true
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - common

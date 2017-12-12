@@ -1,0 +1,8 @@
+- name: "K8s configurations for worker nodes"
+  hosts: workers
+  any_errors_fatal: true
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - worker

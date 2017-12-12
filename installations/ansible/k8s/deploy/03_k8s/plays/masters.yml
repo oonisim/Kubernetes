@@ -1,0 +1,17 @@
+- name: K8s configurations for master
+  hosts: masters
+  any_errors_fatal: true
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - master
+
+- name: K8s configurations for K8S admininistrator
+  hosts: masters
+  any_errors_fatal: true
+  become: yes
+  become_user: "{{ K8S_ADMIN }}"
+  become_method: sudo
+  roles:
+    - user

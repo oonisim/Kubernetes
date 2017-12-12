@@ -1,0 +1,16 @@
+#--------------------------------------------------------------------------------
+# Docker group and its user to avoid using root.
+#--------------------------------------------------------------------------------
+- name: "Create group docker..."
+  group:
+    name: "{{ docker_group }}"
+    state: present
+
+- name: Adding existing user '{{ user }}' to group sudo
+  user:
+    name:   "{{ item }}"
+    groups: "{{ docker_group }}"
+    append: "yes"                 # useradd -aG
+  with_items:
+     - "{{ docker_users }}"
+

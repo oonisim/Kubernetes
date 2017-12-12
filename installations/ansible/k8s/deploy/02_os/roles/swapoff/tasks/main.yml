@@ -1,0 +1,8 @@
+#--------------------------------------------------------------------------------
+# Remove swap from fstab
+#--------------------------------------------------------------------------------
+- name: swap - remove current swaps from fstab
+  lineinfile:
+    dest: /etc/fstab
+    regexp: '^/[\S]+\s+none\s+swap '
+    state: absent

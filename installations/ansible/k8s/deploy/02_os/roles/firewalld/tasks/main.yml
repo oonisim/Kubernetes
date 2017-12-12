@@ -1,0 +1,7 @@
+#--------------------------------------------------------------------------------
+# Disable Firewalld
+#--------------------------------------------------------------------------------
+- name: Disable Firewalld
+  shell: |
+    sudo systemctl --now disable firewalld
+    sudo systemctl stop firewalld

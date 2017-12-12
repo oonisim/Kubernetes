@@ -1,0 +1,25 @@
+#--------------------------------------------------------------------------------
+# Join cluster
+#--------------------------------------------------------------------------------
+- name: "Kubeadmn reset"
+  shell: |
+    kubeadm reset
+
+- name: "K8S_TOKEN"
+  debug:
+    msg: "{{ hostvars[K8S_MASTER_NODE_IP]['K8S_TOKEN'].stdout }}"
+
+- name: "K8S_MASTER_CA_HASH"
+  debug:
+    msg: "{{ hostvars[K8S_MASTER_NODE_IP]['K8S_MASTER_CA_HASH'].stdout }}"
+
+- name: "Kubeadmn join"
+  shell: >
+    kubeadm join --token={{ hostvars[K8S_MASTER_NODE_IP]['K8S_TOKEN'].stdout }}
+    --discovery-token-ca-cert-hash sha256:{{ hostvars[K8S_MASTER_NODE_IP]['K8S_MASTER_CA_HASH'].stdout }}
+    {{K8S_MASTER_NODE_IP}}:{{K8S_API_SERCURE_PORT}}
+
+# sudo kubeadm join --token ${K8S_TOKEN} --discovery-token-ca-cert-hash sah256:${K8S_CA_HASH} ${K8S_MASTER_SERVER_IP}:${PORT}
+#- name: "Kubeadmn join"
+#  shell: |
+#    kubeadm join --token={{ K8S_TOKEN }} --discovery-token-ca-cert-hash sah256:${K8S_MASTER_CA_HASH} ${K8S_MASTER_NODE_IP}:${K8S_API_SERCURE_PORT}

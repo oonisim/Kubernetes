@@ -1,0 +1,14 @@
+---
+- name: System setup for all servers.
+  hosts: environment
+  any_errors_fatal: true
+  become: yes
+  roles:
+    - swapoff
+    - selinux
+    - firewalld
+    - iptable
+    - hosts
+    - yum
+    - ntp
+    - docker

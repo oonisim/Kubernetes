@@ -1,0 +1,46 @@
+#--------------------------------------------------------------------------------
+# Setup cluster
+#--------------------------------------------------------------------------------
+- name: "Kubeadmn reset"
+  shell: |
+    kubeadm reset
+
+- name: "Kubeadmn init"
+  shell: |
+    kubeadm init --pod-network-cidr={{ K8S_SERVICE_ADDRESSES }} --apiserver-advertise-address={{ K8S_ADVERTISE_ADDRESS }}
+
+- name: "Taint to run pods on master"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl taint nodes --all node-role.kubernetes.io/master-
+  args:
+    executable: /bin/bash
+
+#--------------------------------------------------------------------------------
+# Install Flannel
+#--------------------------------------------------------------------------------
+- name: "Pod network init ({{ CNI_PROVIDER_FLANNEL }})"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.9.0/Documentation/kube-flannel.yml
+  args:
+    executable: /bin/bash
+  when: K8S_NETWORK_PROVIDER == CNI_PROVIDER_FLANNEL
+
+#- name: "Enable CNI services"
+#  service:
+#    name: "{{ item }}"
+#    state: "started"
+#    enabled: "yes"
+#  with_items: "{{ K8S_NETWORK_SERVICES }}"
+
+#--------------------------------------------------------------------------------
+# Token and CA Hash for workers
+#--------------------------------------------------------------------------------
+- name: "Cluster token"
+  shell: kubeadm token list | cut -d ' ' -f1 | sed -n '2p'
+  register: K8S_TOKEN
+
+- name: "CA Hash"
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: K8S_MASTER_CA_HASH

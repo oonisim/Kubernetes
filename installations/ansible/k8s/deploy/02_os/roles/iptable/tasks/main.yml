@@ -1,0 +1,15 @@
+#--------------------------------------------------------------------------------
+# Application group/user/home.
+#--------------------------------------------------------------------------------
+- name: Setup Yum repository for Kubernetes
+  shell:
+    cmd: |
+      sudo tee /etc/sysctl.d/k8s.conf <<EOF
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+      EOF
+
+- name: Reload sysctl
+  shell: |
+    sysctl --system
+    sudo sysctl -a

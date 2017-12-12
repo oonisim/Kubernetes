@@ -1,0 +1,14 @@
+- name: "Remove ~/.kube"
+  file:
+    path: ~/.kube
+    state: absent
+
+- name: "User configuration for k8s"
+  shell: |
+    mkdir -p ~/.kube
+    sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
+    sudo chown $(id -u):$(id -g) ~/.kube/config
+  args:
+    executable: /bin/bash
+
+

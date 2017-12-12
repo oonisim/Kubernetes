@@ -1,0 +1,97 @@
+#--------------------------------------------------------------------------------
+# Clean up previous installations
+#--------------------------------------------------------------------------------
+- name: "Remove ~/.kube"
+  file:
+    path: ~/.kube
+    state: absent
+
+- name: "Remove {{ K8S_CONFIG_FILE }}"
+  file:
+    path: "{{ K8S_CONFIG_FILE }}"
+    state: absent
+
+- name: "Stop k8s services"
+  service: name={{ item }} state=stopped enabled=no
+  with_items: "{{ K8S_COMMON_SERVICES }}"
+  ignore_errors: yes
+
+- name: "Stop CNI services"
+  service: name={{ item }} state=stopped enabled=no
+  with_items: "{{ K8S_NETWORK_SERVICES }}"
+  ignore_errors: yes
+
+- name: "Remove /etc/yum.repos.d/kubernetes.repo"
+  file:
+    path: "/etc/yum.repos.d/kubernetes.repo"
+    state: "absent"
+
+- name: "Remove previously installed packages"
+  yum:
+    name: "{{ item }}"
+    state: "removed"
+  with_items: "{{ K8S_PACKAGES }}"
+
+#--------------------------------------------------------------------------------
+# Install Pckages
+#--------------------------------------------------------------------------------
+- name: "Setup Yum repository for Kubernetes"
+  shell:
+    cmd: |
+      sudo tee -a /etc/yum.repos.d/kubernetes.repo << EOF
+      [kubernetes]
+      name=Kubernetes
+      baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+      enabled=1
+      gpgcheck=1
+      repo_gpgcheck=1
+      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+      EOF
+
+- name: "Install packages"
+  yum:
+    name: "{{ item }}"
+    state: "present"
+    update_cache: "true"
+  with_items: "{{ K8S_PACKAGES }}"
+
+- name: "Start k8s services"
+  service: name={{ item }} state=restarted enabled=yes
+  with_items: "{{ K8S_COMMON_SERVICES }}"
+
+#--------------------------------------------------------------------------------
+# Updte K8S_CONFIG_FILE
+#--------------------------------------------------------------------------------
+- name: "Update KUBE_LOGTOSTDERR in {{ K8S_CONFIG_FILE }}..."
+  lineinfile:
+    path: "{{ K8S_CONFIG_FILE }}"
+    regexp: '^KUBE_LOGTOSTDERR=.*'
+    line: 'KUBE_LOGTOSTDERR="--logtostderr=true"'
+    state: "present"
+    create: "yes"
+
+- name: "Update KUBE_LOG_LEVEL in {{ K8S_CONFIG_FILE }}..."
+  lineinfile:
+    path: "{{ K8S_CONFIG_FILE }}"
+    regexp: '^KUBE_LOG_LEVEL=.*'
+    line: 'KUBE_LOG_LEVEL="--v=0"'
+    state: "present"
+    create: "yes"
+
+- name: "Update KUBE_ALLOW_PRIV in {{ K8S_CONFIG_FILE }}..."
+  lineinfile:
+    path: "{{ K8S_CONFIG_FILE }}"
+    regexp: '^KUBE_ALLOW_PRIV=.*'
+    line: 'KUBE_ALLOW_PRIV="--allow-privileged=false"'
+    state: "present"
+    create: "yes"
+
+- name: "Update KUBE_MASTER in {{ K8S_CONFIG_FILE }}..."
+  lineinfile:
+    path: "{{ K8S_CONFIG_FILE }}"
+    regexp: '^KUBE_MASTER=.*'
+#    line: 'KUBE_MASTER="--master=http://{{ K8S_MASTER_HOSTNAME }}:8080"'
+    line: 'KUBE_MASTER="--master=http://{{ K8S_MASTER_NODE_IP }}:8080"'
+    state: "present"
+    create: "yes"
+
