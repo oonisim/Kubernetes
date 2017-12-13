@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: dd-agent
+        env: masa
       name: dd-agent
     spec:
       containers:
