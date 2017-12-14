@@ -1,7 +1,7 @@
 #--------------------------------------------------------------------------------
 # Update Kubelet cAdvisor port for DD monitoring.
 #--------------------------------------------------------------------------------
-- name: "Update /etc/systemd/system/kubelet.service.d/10-kubeadm.conf for --cadvisor-port=4194 option."
+- name: "Update {{ KUBELET_CONFIG_FILE }} for --cadvisor-port=4194 option."
   lineinfile:
     path: "{{ KUBELET_CONFIG_FILE }}"
     regexp: '^Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port=.*'

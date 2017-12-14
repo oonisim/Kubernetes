@@ -55,8 +55,42 @@
     update_cache: "true"
   with_items: "{{ K8S_PACKAGES }}"
 
+#--------------------------------------------------------------------------------
+# Set the cgroups of kubelet to that of docker.
+# https://github.com/kubernetes/kubernetes/issues/43805
+# https://docs.python.org/2/library/re.html
+#--------------------------------------------------------------------------------
+- name: "Start docker service"
+  service:
+    name:     "docker"
+    state:    "restarted"
+    enabled:  "yes"
+
+- name: "Get the cgroup docker"
+  shell: |
+    docker info 2>/dev/null | sed -n 's/Cgroup Driver: \(.*\)/\1/p'
+  register: docker_cgroup
+
+- name:  "Docker Cgroup"
+  debug:
+    msg: "{{ docker_cgroup }}"
+
+- name: "Update {{ KUBELET_CONFIG_FILE }} to set kubelet cgroup."
+  replace:
+    path:     "{{ KUBELET_CONFIG_FILE }}"
+#    regexp:   '^Environment="KUBELET_KUBECONFIG_ARGS=(.*)"\s*$'
+    regexp:   '^Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=(.+)"\s*$'
+    replace:  'Environment="KUBELET_CGROUP_ARGS=--cgroup-driver={{ docker_cgroup.stdout }}"'
+    backup:   "yes"
+
+- name: "Force systemd to reread configs (2.4 and above)"
+  systemd: daemon_reload=yes
+
 - name: "Start k8s services"
-  service: name={{ item }} state=restarted enabled=yes
+  service:
+    name:     "{{ item }}"
+    state:    "restarted"
+    enabled:  "yes"
   with_items: "{{ K8S_COMMON_SERVICES }}"
 
 #--------------------------------------------------------------------------------

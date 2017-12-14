@@ -1,8 +1,15 @@
 #--------------------------------------------------------------------------------
 # Remove swap from fstab
+# Make sure to reboot! Hence run this as the last step of OS module.
 #--------------------------------------------------------------------------------
 - name: swap - remove current swaps from fstab
   lineinfile:
     dest: /etc/fstab
     regexp: '^/[\S]+\s+none\s+swap '
     state: absent
+
+- name: Restart server
+  command: /sbin/shutdown -r now
+  async: 0
+  poll: 0
+  ignore_errors: true

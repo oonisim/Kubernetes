@@ -5,10 +5,11 @@
   become: yes
   roles:
     - common
-    - swapoff
     - selinux
     - firewalld
     - iptable
     - hosts
     - ntp
     - docker
+    # swapoff MUST be last as it reboot to make sure to disable swap.
+    - swapoff

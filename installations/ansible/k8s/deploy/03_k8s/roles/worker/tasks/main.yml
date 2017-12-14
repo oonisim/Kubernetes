@@ -5,19 +5,39 @@
   shell: |
     kubeadm reset
 
-- name: "K8S_TOKEN"
-  debug:
-    msg: "{{ hostvars[K8S_MASTER_NODE_IP]['K8S_TOKEN'].stdout }}"
+#- name: "K8S_TOKEN"
+#  debug:
+#    msg: "{{ hostvars[K8S_MASTER_NODE_IP]['K8S_TOKEN'].stdout }}"
 
-- name: "K8S_MASTER_CA_HASH"
+#- name: "K8S_MASTER_CA_HASH"
+#  debug:
+#    msg: "{{ hostvars[K8S_MASTER_NODE_IP]['K8S_MASTER_CA_HASH'].stdout }}"
+
+#- name: "Kubeadmn join"
+#  shell: >
+#    kubeadm join --token={{ hostvars[K8S_MASTER_NODE_IP]['K8S_TOKEN'].stdout }}
+#    --discovery-token-ca-cert-hash sha256:{{ hostvars[K8S_MASTER_NODE_IP]['K8S_MASTER_CA_HASH'].stdout }}
+#    {{K8S_MASTER_NODE_IP}}:{{K8S_API_SERCURE_PORT}}
+
+- name: "Remove /var/lib/kubelet/"
+  file:
+    path:  "/var/lib/kubelet/"
+    state: "absent"
+
+- name:
   debug:
-    msg: "{{ hostvars[K8S_MASTER_NODE_IP]['K8S_MASTER_CA_HASH'].stdout }}"
+    msg: "[Worker] K8S_TOKEN_HOLDER K8S token is {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+- name:
+  debug:
+    msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
 
 - name: "Kubeadmn join"
   shell: >
-    kubeadm join --token={{ hostvars[K8S_MASTER_NODE_IP]['K8S_TOKEN'].stdout }}
-    --discovery-token-ca-cert-hash sha256:{{ hostvars[K8S_MASTER_NODE_IP]['K8S_MASTER_CA_HASH'].stdout }}
+    kubeadm join --token={{ hostvars['K8S_TOKEN_HOLDER']['token'] }}
+    --discovery-token-ca-cert-hash sha256:{{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}
     {{K8S_MASTER_NODE_IP}}:{{K8S_API_SERCURE_PORT}}
+
 
 # sudo kubeadm join --token ${K8S_TOKEN} --discovery-token-ca-cert-hash sah256:${K8S_CA_HASH} ${K8S_MASTER_SERVER_IP}:${PORT}
 #- name: "Kubeadmn join"

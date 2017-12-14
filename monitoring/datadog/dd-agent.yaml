@@ -11,7 +11,7 @@ spec:
     metadata:
       labels:
         app: dd-agent
-        client: ONISHI
+        client: "Telstra Mobility Services"
       name: dd-agent
     spec:
       nodeSelector:
