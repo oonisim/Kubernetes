@@ -1,0 +1,5 @@
+#--------------------------------------------------------------------------------
+# List of target files to be created from templates if templates exist.
+# APP_HOME is evaluated in template.sh.
+#--------------------------------------------------------------------------------
+${K8S_HOME}/conf/setup.conf

@@ -1,0 +1,12 @@
+#--------------------------------------------------------------------------------
+# /etc/hosts
+#--------------------------------------------------------------------------------
+172.31.4.38  aws_worker00
+172.31.14.189  aws_worker01
+172.31.11.199  aws_master00
+
+127.0.0.1	localhost
+#127.0.1.1	loopback
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback

@@ -11,9 +11,11 @@ spec:
     metadata:
       labels:
         app: dd-agent
-        env: masa
+        client: ONISHI
       name: dd-agent
     spec:
+      nodeSelector:
+        logging-non-prod-infra-fluentd: "true"
       containers:
       - image: datadog/docker-dd-agent:latest
         imagePullPolicy: Always
@@ -29,6 +31,10 @@ spec:
             value: "yes"
           - name: SD_BACKEND
             value: docker
+          - name: SD_BACKEND
+            value: docker
+          - name: TAGS
+            value: "env:dev,app:api"
           # Uncomment this variable if the agent has issues reaching kubelet
           # - name: KUBERNETES_KUBELET_HOST
           #   valueFrom:

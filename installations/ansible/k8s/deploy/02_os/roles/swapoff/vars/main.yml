@@ -1,7 +1,7 @@
 ---
 users:
   - name: "{{ SYS_USER }}"
-    group: "{{ APP_GROUP }} "
+    group: "{{ K8S_GROUP }} "
     authorized:
       - "/home/{{ SYS_USER }}/.ssh/id_rsa.pub"
     password: $6$r1KIpyQw8$pWIMAT87xWOQ74xDP70RJQ/53v1pWTuic4DewtsRekZqacT3ieto17TAyEhI8IuyfIaBClFgEYb/GRcRxEzfY0
@@ -9,7 +9,7 @@ users:
       - "{{ DECRYPT_KEY_FILE }}"
 
   - name: "{{ PKG_USER }}"
-    group: "{{ APP_GROUP }} "
+    group: "{{ K8S_GROUP }} "
     authorized:
       - "/home/{{ PKG_USER }}/.ssh/id_rsa.pub"
     password:

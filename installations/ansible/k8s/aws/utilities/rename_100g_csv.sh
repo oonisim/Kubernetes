@@ -1,0 +1,11 @@
+mv 36_ADJUSTMENT.csv ADJUSTMENT.csv
+mv 37_BILL.csv BILL.csv
+mv 39_COMPLAINT.csv COMPLAINT.csv
+mv 38_CHURN.csv CHURN.csv
+mv 40_CRM.csv CRM.csv
+mv 41_NPSSURVEY.csv NPSSURVEY.csv
+mv 42_PAYMENT.csv PAYMENT.csv
+mv 43_POSTCALLNOTE.csv POSTCALLNOTE.csv
+mv 44_SALE.csv SALE.csv
+mv 45_WEB.csv WEB.csv
+mv 46_CALL.csv CALL.csv

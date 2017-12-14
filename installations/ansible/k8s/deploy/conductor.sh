@@ -25,8 +25,8 @@ ARGS=$@
 
 . ${PLAY_DIR}/../scripts/_utility.sh
 
-CONF_DIR=$(_locate ${DIR} '/' 'k8s/conf')
-TOOL_DIR=$(_locate ${DIR} '/' 'k8s/tools')
+CONF_DIR=$(_locate ${DIR} '/' 'installations/conf')
+TOOL_DIR=$(_locate ${DIR} '/' 'installations/tools')
 PLAYER=$(realpath "$(dirname $0)")/player.sh
 
 source ${CONF_DIR}/env/${ENVIRONMENT}/env.properties

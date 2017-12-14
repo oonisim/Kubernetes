@@ -1,0 +1,16 @@
+#--------------------------------------------------------------------------------
+# Install Datadog agent
+#--------------------------------------------------------------------------------
+- name: "Copy Datadog agent daemonset manifest."
+  copy:
+    src: "{{ role_path }}/files/dd-agent.yaml"
+    dest: "~/dd-agent.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    mode: 0644
+
+- name: "Deploy dd-agent"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl create -f ~/dd-agent.yaml
+
+

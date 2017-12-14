@@ -1,0 +1,19 @@
+# This file must be processed after ec2.py, hence the file name must come after ec2.
+#[local]
+#localhost   ansible_connection=local
+
+[masters]
+
+[masters:children]
+tag_type_master
+
+[workers]
+
+[workers:children]
+tag_type_worker
+
+# Entire nodes
+[environment]
+
+[environment:children]
+tag_environment_aws

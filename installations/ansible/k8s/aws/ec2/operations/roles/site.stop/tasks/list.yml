@@ -1,0 +1,8 @@
+- name: Get list of instances to stop...
+  ec2_remote_facts:
+    filters:
+      instance-state-name: running
+    region:          "{{ ec2_region }}"
+    ec2_access_key:  "{{ ec2_access_key }}"
+    ec2_secret_key:  "{{ ec2_secret_key }}"
+  register: ec2_instances

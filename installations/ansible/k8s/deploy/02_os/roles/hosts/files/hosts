@@ -1,3 +1,12 @@
-192.168.99.10   master
-192.168.99.11   node01
-192.168.99.12   node02
+#--------------------------------------------------------------------------------
+# /etc/hosts
+#--------------------------------------------------------------------------------
+172.31.4.38  ip-172-31-4-38.us-west-1.compute.internal  aws_worker00
+172.31.14.189  ip-172-31-14-189.us-west-1.compute.internal  aws_worker01
+172.31.11.199  ip-172-31-11-199.us-west-1.compute.internal  aws_master00
+
+127.0.0.1	localhost
+#127.0.1.1	loopback
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback

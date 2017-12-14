@@ -1,0 +1,4 @@
+---
+# ec2_create: creates new EC2 server instances for configuration.
+- include: list.yml
+- include: start.yml

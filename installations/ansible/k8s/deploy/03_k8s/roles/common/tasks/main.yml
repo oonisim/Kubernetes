@@ -38,7 +38,7 @@
 - name: "Setup Yum repository for Kubernetes"
   shell:
     cmd: |
-      sudo tee -a /etc/yum.repos.d/kubernetes.repo << EOF
+      tee /etc/yum.repos.d/kubernetes.repo << EOF
       [kubernetes]
       name=Kubernetes
       baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
