@@ -1,5 +1,6 @@
 #--------------------------------------------------------------------------------
 # Application group/user/home.
+# Perhaps better to use http://docs.ansible.com/ansible/latest/yum_repository_module.html
 #--------------------------------------------------------------------------------
 - name: Setup Yum repository for Kubernetes
   shell:

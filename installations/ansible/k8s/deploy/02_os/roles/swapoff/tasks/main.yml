@@ -9,7 +9,12 @@
     state: absent
 
 - name: Restart server
-  command: /sbin/shutdown -r now
+  command: /sbin/shutdown -r 1
   async: 0
   poll: 0
   ignore_errors: true
+
+- pause:
+    prompt: "The system restarts in 1 min to complete disabling swap (otherwise error with kubeadm)..."
+    minutes: 3
+

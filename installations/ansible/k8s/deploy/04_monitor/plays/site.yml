@@ -1,3 +1,2 @@
-- include: all.yml
 - include: masters.yml
 - include: workers.yml
