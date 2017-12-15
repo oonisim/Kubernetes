@@ -1,8 +1,6 @@
 K8S (1.8) Installation Ansible
 =========
 
-
-
 Requirements
 ------------
 
@@ -14,15 +12,8 @@ Requirements
 
 How to run
 ----------------
+1. <module>/scripts/main.sh ${ENV} ${REMOTE_USER}
 
-1. k8s/deploy/01_ansible/scripts/main.sh ${ENV} ${REMOTE_USER}
-2. k8s/deploy/02_os/scripts/main.sh      ${ENV} ${REMOTE_USER}
-3. k8s/deploy/03_k8s/scripts/main.sh     ${ENV} ${REMOTE_USER}
-
-
-
-    $ kubectl get nodes
-    NAME      STATUS    ROLES     AGE       VERSION
-    master    Ready     master    36m       v1.8.5
-    node01    Ready     <none>    35m       v1.8.5
-    node02    Ready     <none>    35m       v1.8.5
+Note
+----------------
+Using root account to execute K8S, not a specific K8S admin account. To be fixed.

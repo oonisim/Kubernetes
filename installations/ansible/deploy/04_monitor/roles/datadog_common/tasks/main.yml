@@ -1,22 +1,18 @@
 #--------------------------------------------------------------------------------
-# Datadog agent setups
+# Update Kubelet cAdvisor port for DD monitoring.
 #--------------------------------------------------------------------------------
+#- name: "Update {{ KUBELET_CONFIG_FILE }} for --cadvisor-port=4194 option."
+#  lineinfile:
+#    path: "{{ KUBELET_CONFIG_FILE }}"
+#    regexp: '^Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port=.*'
+#    line: 'Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port=4194"'
+#    state: "present"
+#    create: "yes"
+
 - name: "Update {{ KUBELET_CONFIG_FILE }} to set cAdvisor port."
   replace:
     path:     "{{ KUBELET_CONFIG_FILE }}"
     regexp:   '^Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port=(.+)"\s*$'
     replace:   'Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port={{ CADVISOR_PORT }}"'
     backup:   "yes"
-
-- template:
-    src: "{{ role_path }}/templates/dd-agent.yaml.j2"
-    dest: "~{{ K8S_ADMIN }}/dd-agent.yaml"
-    owner: "{{ K8S_ADMIN }}"
-    mode: 0644
-
-- name: "Deploy dd-agent"
-  shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
-    kubectl create -f ~/dd-agent.yaml
-
 

@@ -1,77 +1,13 @@
 #--------------------------------------------------------------------------------
-# Clean up previous installations
-#--------------------------------------------------------------------------------
-- name: "Remove ~/.kube"
-  file:
-    path: ~/.kube
-    state: absent
-
-- name: "Remove {{ K8S_CONFIG_FILE }}"
-  file:
-    path: "{{ K8S_CONFIG_FILE }}"
-    state: absent
-
-- name: "Stop k8s services"
-  service: name={{ item }} state=stopped enabled=no
-  with_items: "{{ K8S_COMMON_SERVICES }}"
-  ignore_errors: yes
-
-- name: "Stop CNI services"
-  service: name={{ item }} state=stopped enabled=no
-  with_items: "{{ K8S_NETWORK_SERVICES }}"
-  ignore_errors: yes
-
-- name: "Remove /etc/yum.repos.d/kubernetes.repo"
-  file:
-    path: "/etc/yum.repos.d/kubernetes.repo"
-    state: "absent"
-
-- name: "Remove previously installed packages"
-  yum:
-    name: "{{ item }}"
-    state: "removed"
-  with_items: "{{ K8S_PACKAGES }}"
-
-#--------------------------------------------------------------------------------
 # Install Pckages
-# Better to use http://docs.ansible.com/ansible/latest/yum_repository_module.html
 #--------------------------------------------------------------------------------
-#- name: "Setup Yum repository for Kubernetes"
-#  shell:
-#    cmd: |
-#      tee /etc/yum.repos.d/kubernetes.repo << EOF
-#      [kubernetes]
-#      name=Kubernetes
-#      baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-#      enabled=1
-#      gpgcheck=1
-#      repo_gpgcheck=1
-#      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-#      EOF
-
-- name: "Kubernetes repository"
-  yum_repository:
-    name: Kubernetes
-    description: Kubernetes
-    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-    gpgcheck: yes
-    repo_gpgcheck: yes
-    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-
-- name: update repo cache for the new repo
-  command: yum -q makecache -y --disablerepo=* --enablerepo=Kubernetes
-
-- name: "Install packages"
-  yum:
-    name: "{{ item }}"
-    state: "present"
-    update_cache: "true"
-  with_items: "{{ K8S_PACKAGES }}"
+- include: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
 
 #--------------------------------------------------------------------------------
-# Set the cgroups of kubelet to that of docker.
+# Start docker.
+# Set the cgroup args for kubelet to talk with docker.
 # https://github.com/kubernetes/kubernetes/issues/43805
-# https://docs.python.org/2/library/re.html
+# https://stackoverflow.com/questions/46726216
 #--------------------------------------------------------------------------------
 - name: "Start docker service"
   service:
@@ -91,14 +27,18 @@
 - name: "Update {{ KUBELET_CONFIG_FILE }} to set kubelet cgroup."
   replace:
     path:     "{{ KUBELET_CONFIG_FILE }}"
-#    regexp:   '^Environment="KUBELET_KUBECONFIG_ARGS=(.*)"\s*$'
     regexp:   '^Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=(.+)"\s*$'
-    replace:  'Environment="KUBELET_CGROUP_ARGS=--cgroup-driver={{ docker_cgroup.stdout }}"'
+    replace:  'Environment="KUBELET_CGROUP_ARGS=--cgroup-driver={{ docker_cgroup.stdout }} --runtime-cgroups=/{{ docker_cgroup.stdout }}/system.slice --kubelet-cgroups=/{{ docker_cgroup.stdout }}/system.slice"'
     backup:   "yes"
 
 - name: "Force systemd to reread configs (2.4 and above)"
   systemd: daemon_reload=yes
+#--------------------------------------------------------------------------------
 
+#--------------------------------------------------------------------------------
+# Start Kubelet as instructed in kubeadm document, however will fail due to
+# https://github.com/kubernetes/kubernetes/issues/53889
+#--------------------------------------------------------------------------------
 - name: "Start k8s services"
   service:
     name:     "{{ item }}"

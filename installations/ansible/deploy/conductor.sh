@@ -57,7 +57,7 @@ VAULT_PASS_FILE=${CONF_DIR}/ansible/vaultpass.encrypted
 VAULT_PASS=$(${TOOL_DIR}/decrypt.sh ${DECRYPT_KEY_FILE} ${VAULT_PASS_FILE})
 #${PLAYER} ${VAULT_PASS} ${REMOTE_USER} ${ARGS}
 
-ansible-playbook -vvvv -i hosts --limit "environment" --user ${REMOTE_USER} ${ARGS} site.yml --vault-password-file ~/.vault_pass.txt
+ansible-playbook -vvv -i hosts --limit "environment" --user ${REMOTE_USER} ${ARGS} site.yml --vault-password-file ~/.vault_pass.txt
 
 #--------------------------------------------------------------------------------
 # Clean up

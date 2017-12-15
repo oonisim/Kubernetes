@@ -1,0 +1,29 @@
+#--------------------------------------------------------------------------------
+# Datadog agent setups
+#--------------------------------------------------------------------------------
+- name: "Place dd-agent daemonset manifest."
+  template:
+    src: "{{ role_path }}/templates/dd-agent.yaml.j2"
+    dest: "~{{ K8S_ADMIN }}/dd-agent.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    mode: 0644
+
+- name: "Deploy dd-agent."
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl get daemonset dd-agent
+  ignore_errors: "true"
+  register: isDDAgentRunning
+
+- name: "Deploy dd-agent."
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl apply -f ~/dd-agent.yaml
+    kubectl delete daemonset dd-agent
+  when: isDDAgentRunning.rc == 0
+
+- name: "Deploy dd-agent."
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl create -f ~/dd-agent.yaml
+  when: isDDAgentRunning.rc != 0

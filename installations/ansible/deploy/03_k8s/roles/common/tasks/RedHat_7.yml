@@ -1,0 +1,71 @@
+#--------------------------------------------------------------------------------
+# Clean up previous installations
+#--------------------------------------------------------------------------------
+- name: "Remove ~/.kube"
+  file:
+    path: ~/.kube
+    state: absent
+
+- name: "Remove {{ K8S_CONFIG_FILE }}"
+  file:
+    path: "{{ K8S_CONFIG_FILE }}"
+    state: absent
+
+- name: "Stop k8s services"
+  service: name={{ item }} state=stopped enabled=no
+  with_items: "{{ K8S_COMMON_SERVICES }}"
+  ignore_errors: yes
+
+- name: "Stop CNI services"
+  service: name={{ item }} state=stopped enabled=no
+  with_items: "{{ K8S_NETWORK_SERVICES }}"
+  ignore_errors: yes
+
+- name: "Remove /etc/yum.repos.d/kubernetes.repo"
+  file:
+    path: "/etc/yum.repos.d/kubernetes.repo"
+    state: "absent"
+
+- name: "Remove previously installed packages"
+  yum:
+    name: "{{ item }}"
+    state: "removed"
+  with_items: "{{ K8S_PACKAGES }}"
+
+#--------------------------------------------------------------------------------
+# Install Pckages
+#--------------------------------------------------------------------------------
+
+#- name: "Setup Yum repository for Kubernetes"
+#  shell:
+#    cmd: |
+#      tee /etc/yum.repos.d/kubernetes.repo << EOF
+#      [kubernetes]
+#      name=Kubernetes
+#      baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+#      enabled=1
+#      gpgcheck=1
+#      repo_gpgcheck=1
+#      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+#      EOF
+
+- name: "Kubernetes repository"
+  yum_repository:
+    name: Kubernetes
+    description: Kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    gpgcheck: yes
+    repo_gpgcheck: yes
+    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+# Fix for https://github.com/ansible/ansible/issues/20711
+- name: update repo cache for the new repo
+  command: yum -q makecache -y --disablerepo=* --enablerepo=Kubernetes
+
+- name: "Install packages"
+  yum:
+    name: "{{ item }}"
+    state: "present"
+    update_cache: "true"
+  with_items: "{{ K8S_PACKAGES }}"
+
