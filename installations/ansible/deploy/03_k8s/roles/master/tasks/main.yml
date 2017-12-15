@@ -1,15 +1,6 @@
 #--------------------------------------------------------------------------------
 # Setup cluster
 #--------------------------------------------------------------------------------
-- name: "Kubeadmn reset"
-  shell: |
-    kubeadm reset
-
-- name: "Remove /var/lib/kubelet/"
-  file:
-    path:  "/var/lib/kubelet/"
-    state: "absent"
-
 - name: "Kubeadmn init"
   shell: |
     kubeadm init --pod-network-cidr={{ K8S_SERVICE_ADDRESSES }} --apiserver-advertise-address={{ K8S_ADVERTISE_ADDRESS }}

@@ -16,3 +16,18 @@
     replace:   'Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port={{ CADVISOR_PORT }}"'
     backup:   "yes"
 
+- name: "Force systemd to reread configs (2.4 and above)"
+  systemd: daemon_reload=yes
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
+# Start Kubelet as instructed in kubeadm document, however will fail due to
+# https://github.com/kubernetes/kubernetes/issues/53889
+#--------------------------------------------------------------------------------
+- name: "Start k8s services"
+  service:
+    name:     "{{ item }}"
+    state:    "restarted"
+    enabled:  "yes"
+  with_items: "{{ K8S_COMMON_SERVICES }}"
+

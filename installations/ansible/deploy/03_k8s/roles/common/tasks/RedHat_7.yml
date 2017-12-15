@@ -1,16 +1,6 @@
 #--------------------------------------------------------------------------------
 # Clean up previous installations
 #--------------------------------------------------------------------------------
-- name: "Remove ~/.kube"
-  file:
-    path: ~/.kube
-    state: absent
-
-- name: "Remove {{ K8S_CONFIG_FILE }}"
-  file:
-    path: "{{ K8S_CONFIG_FILE }}"
-    state: absent
-
 - name: "Stop k8s services"
   service: name={{ item }} state=stopped enabled=no
   with_items: "{{ K8S_COMMON_SERVICES }}"
@@ -20,6 +10,33 @@
   service: name={{ item }} state=stopped enabled=no
   with_items: "{{ K8S_NETWORK_SERVICES }}"
   ignore_errors: yes
+
+- name: "Kubeadmn reset"
+  shell: |
+    kubeadm reset
+  ignore_errors: "true"
+
+- name: "Clearn up CNI (Fix for https://github.com/kubernetes/kubernetes/issues/39557)"
+  shell: |
+    rm -rf /var/lib/cni/
+    rm -rf /var/lib/kubelet/*
+    rm -rf /etc/cni/
+    ifconfig cni0 down
+    ifconfig flannel.1 down
+    ifconfig docker0 down
+    ip link delete cni0
+    ip link delete flannel.1
+  ignore_errors: true
+
+- name: "Remove ~/.kube"
+  file:
+    path: ~/.kube
+    state: absent
+
+- name: "Remove {{ K8S_CONFIG_FILE }}"
+  file:
+    path: "{{ K8S_CONFIG_FILE }}"
+    state: absent
 
 - name: "Remove /etc/yum.repos.d/kubernetes.repo"
   file:

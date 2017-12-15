@@ -1,10 +1,6 @@
 #--------------------------------------------------------------------------------
 # Join cluster
 #--------------------------------------------------------------------------------
-- name: "Kubeadmn reset"
-  shell: |
-    kubeadm reset
-
 #- name: "K8S_TOKEN"
 #  debug:
 #    msg: "{{ hostvars[K8S_MASTER_NODE_IP]['K8S_TOKEN'].stdout }}"
