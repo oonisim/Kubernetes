@@ -1,5 +1,6 @@
 #--------------------------------------------------------------------------------
-#
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# Datadog K8S daemonset generated with Ansible
 # https://app.datadoghq.com/account/settings#agent/kubernetes
 #--------------------------------------------------------------------------------
 apiVersion: extensions/v1beta1
@@ -11,7 +12,7 @@ spec:
     metadata:
       labels:
         app: dd-agent
-        #env: masa
+        client: MONTA
       name: dd-agent
     spec:
       containers:
@@ -23,8 +24,10 @@ spec:
             name: dogstatsdport
             protocol: UDP
         env:
+          - name: TAGS
+            value: {{ datadog_tags }}
           - name: API_KEY
-            value: e4b7235af7296d85293563e34dc625ec
+            value: "{{ datadog_api_key }}"
           - name: KUBERNETES
             value: "yes"
           - name: SD_BACKEND
