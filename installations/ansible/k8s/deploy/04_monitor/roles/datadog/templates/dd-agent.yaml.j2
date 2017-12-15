@@ -12,7 +12,7 @@ spec:
     metadata:
       labels:
         app: dd-agent
-        client: MONTA
+        {{ datadog_labels }}
       name: dd-agent
     spec:
       containers:
@@ -25,7 +25,7 @@ spec:
             protocol: UDP
         env:
           - name: TAGS
-            value: {{ datadog_tags }}
+            value: "{{ datadog_tags }}"
           - name: API_KEY
             value: "{{ datadog_api_key }}"
           - name: KUBERNETES

@@ -1,10 +1,16 @@
 #--------------------------------------------------------------------------------
-# Install Datadog agent
+# Datadog agent setups
 #--------------------------------------------------------------------------------
-- name: "Copy Datadog agent daemonset manifest."
-  copy:
-    src: "{{ role_path }}/files/dd-agent.yaml"
-    dest: "~/dd-agent.yaml"
+- name: "Update {{ KUBELET_CONFIG_FILE }} to set cAdvisor port."
+  replace:
+    path:     "{{ KUBELET_CONFIG_FILE }}"
+    regexp:   '^Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port=(.+)"\s*$'
+    replace:   'Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port={{ CADVISOR_PORT }}"'
+    backup:   "yes"
+
+- template:
+    src: "{{ role_path }}/templates/dd-agent.yaml.j2"
+    dest: "~{{ K8S_ADMIN }}/dd-agent.yaml"
     owner: "{{ K8S_ADMIN }}"
     mode: 0644
 

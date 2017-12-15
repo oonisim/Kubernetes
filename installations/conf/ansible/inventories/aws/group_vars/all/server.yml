@@ -3,6 +3,35 @@ K8S_ADMIN : maonishi
 K8S_GROUP: k8s
 
 #--------------------------------------------------------------------------------
+# Constants
+#--------------------------------------------------------------------------------
+NODE_TYPE_MASTER: "master"
+NODE_TYPE_WORKER: "worker"
+CNI_PROVIDER_FLANNEL: "flannel"
+
+#--------------------------------------------------------------------------------
 # [Security]
 #--------------------------------------------------------------------------------
 DECRYPT_KEY_FILE: "~/.ssh/private.pem"
+
+
+K8S_CONFIG_FILE: "/etc/kubernetes/config"
+KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+
+
+K8S_PACKAGES:
+  - kubeadm
+  - kubelet
+  - kubectl
+  - flannel
+  - docker
+
+K8S_COMMON_SERVICES:
+# Start flannel is via kubectl apply -f flanne.yaml
+  - kubelet
+
+# Note that Docker requires CNI (e.g. Flannel) as pre-requisite service for K8S.
+# See /etc/systemd/system/docker.service.requires/flanneld.service
+K8S_NETWORK_PROVIDER: "{{ CNI_PROVIDER_FLANNEL }}"
+K8S_NETWORK_SERVICES:
+  - flanneld
