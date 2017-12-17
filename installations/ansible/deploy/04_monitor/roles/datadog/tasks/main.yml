@@ -8,21 +8,21 @@
     owner: "{{ K8S_ADMIN }}"
     mode: 0644
 
-- name: "Deploy dd-agent."
+- name: "Check if dd-agent has been installed."
   shell: |
     export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl get daemonset dd-agent
-  ignore_errors: "true"
   register: isDDAgentRunning
+  ignore_errors: "true"
 
-- name: "Deploy dd-agent."
+- name: "Delete and redeploy dd-agent if already installed."
   shell: |
     export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl apply -f ~{{ K8S_ADMIN }}/dd-agent.yaml
     kubectl delete daemonset dd-agent
   when: isDDAgentRunning.rc == 0
 
-- name: "Deploy dd-agent."
+- name: "Deploy dd-agent if not already installed."
   shell: |
     export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl create -f ~{{ K8S_ADMIN }}/dd-agent.yaml

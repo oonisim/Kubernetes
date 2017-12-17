@@ -1,2 +1,2 @@
-datadog_tags: "environment: masa"
+datadog_tags: "environment:masa"
 datadog_labels: "client: MASA"
