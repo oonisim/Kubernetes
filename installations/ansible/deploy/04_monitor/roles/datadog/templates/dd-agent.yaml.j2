@@ -32,6 +32,8 @@ spec:
             value: "yes"
           - name: SD_BACKEND
             value: docker
+          - name: DD_PROCESS_AGENT_ENABLED
+            value: "true"
           # Uncomment this variable if the agent has issues reaching kubelet
           # - name: KUBERNETES_KUBELET_HOST
           #   valueFrom:
@@ -55,6 +57,9 @@ spec:
           - name: cgroups
             mountPath: /host/sys/fs/cgroup
             readOnly: true
+          - name: passwd
+            mountPath: /etc/passwd
+            readOnly: true
         livenessProbe:
           exec:
             command:
@@ -71,3 +76,6 @@ spec:
         - hostPath:
             path: /sys/fs/cgroup
           name: cgroups
+        - hostPath:
+            path: /etc/hosts
+          name: passwd

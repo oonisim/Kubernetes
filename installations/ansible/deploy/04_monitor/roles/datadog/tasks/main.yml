@@ -15,15 +15,14 @@
   register: isDDAgentRunning
   ignore_errors: "true"
 
-- name: "Delete and redeploy dd-agent if already installed."
+- name: "Delete dd-agent if already installed."
   shell: |
     export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl apply -f ~{{ K8S_ADMIN }}/dd-agent.yaml
     kubectl delete daemonset dd-agent
   when: isDDAgentRunning.rc == 0
 
-- name: "Deploy dd-agent if not already installed."
+- name: "Deploy dd-agent."
   shell: |
     export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl create -f ~{{ K8S_ADMIN }}/dd-agent.yaml
-  when: isDDAgentRunning.rc != 0
