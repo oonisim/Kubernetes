@@ -1,0 +1,41 @@
+init_config:
+  # Change default path of trusted certificates
+  # ca_certs: /etc/ssl/certs/ca-certificates.crt
+
+instances:
+{% for item in services %}
+  - name: "{{services[item].name}}"
+    url: {{services[item].protocol}}://{{ services[item].host }}:{{ services[item].port }}/{{ services[item].path }}
+    timeout: 1
+    include_content: true
+    collect_response_time: true
+    http_response_status_code: 200
+    disable_ssl_validation: false
+    ignore_ssl_warning: true
+    check_certificate_expiration: false
+    allow_redirects: true
+    ca_certs:     "{{services[item].ca_certs}}"
+    client_cert:  "{{services[item].client_cert}}"
+    client_key:   "{{services[item].client_key}}"
+    tags:
+       - url:{{services[item].protocol}}://{{ services[item].host }}:{{ services[item].port }}/{{ services[item].path }}
+       - node:"{{ inventory_hostname }}"
+{% endfor %}
+
+  - name: "node_master_c-to-es_prod"
+    url: https://search-tms-dpe-logging-japclvsky27abhdykd7lewg45u.ap-southeast-2.es.amazonaws.com/core-apis-prod*/_search?from=1&size=1
+    timeout: 1
+    #content_match: '^\{"took"'
+    http_response_status_code: 200
+    include_content: true
+    collect_response_time: true
+    disable_ssl_validation: false
+    ignore_ssl_warning: false
+    check_certificate_expiration: true
+    days_warning: 30
+    days_critical: 14
+    allow_redirects: true
+    tags:
+       - url:https://search-tms-dpe-logging
+       - node:"{{ inventory_hostname }}"
+       - target:es-prod

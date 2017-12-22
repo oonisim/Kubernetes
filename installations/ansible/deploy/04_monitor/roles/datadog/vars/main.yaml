@@ -1,0 +1,33 @@
+
+
+services:
+  endpoint:
+    name: "apiserver"
+    protocol: "https"
+    host: "ip-10-0-4-21.ap-southeast-2.compute.internal"
+    port: "8443"
+    path: "version"
+    code: "200"
+    ca_certs:     /etc/origin/master/ca.crt
+    client_cert:  /etc/origin/master/admin.crt
+    client_key:   /etc/origin/master/admin.key
+  endpoint:
+    name: "kubelet-mule-a"
+    protocol: "https"
+    host: "ip-10-0-4-42.ap-southeast-2.compute.internal"
+    port: "10250"
+    path: "stats/summary"
+    code: "200"
+    ca_certs:     /etc/origin/master/ca.crt
+    client_cert:  /etc/origin/master/admin.crt
+    client_key:   /etc/origin/master/admin.key
+  endpoint:
+    name: "kubelet-mule-b"
+    protocol: "https"
+    host: "ip-10-0-16-42.ap-southeast-2.compute.internal"
+    port: "10250"
+    path: "stats/summary"
+    code: "200"
+    ca_certs:     /etc/origin/master/ca.crt
+    client_cert:  /etc/origin/master/admin.crt
+    client_key:   /etc/origin/master/admin.key

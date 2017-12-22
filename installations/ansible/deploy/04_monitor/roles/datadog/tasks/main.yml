@@ -1,5 +1,17 @@
 #--------------------------------------------------------------------------------
-# Datadog agent setups
+# HTTP check on host
+#--------------------------------------------------------------------------------
+- name: "Place dd-agent http_check manifest."
+  template:
+    src: "{{ role_path }}/templates/http_check.yaml.j2"
+    dest: "/etc/dd-agent/conf.d/http_check.yaml"
+    owner: "dd-agent"
+    group: "dd-agent"
+    mode: 0640
+  when: false
+
+#--------------------------------------------------------------------------------
+# Datadog K8S agent setups as daemonset
 #--------------------------------------------------------------------------------
 - name: "Place dd-agent daemonset manifest."
   template:
@@ -26,3 +38,5 @@
   shell: |
     export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl create -f ~{{ K8S_ADMIN }}/dd-agent.yaml
+
+

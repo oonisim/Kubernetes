@@ -14,7 +14,14 @@ CNI_PROVIDER_FLANNEL: "flannel"
 #--------------------------------------------------------------------------------
 DECRYPT_KEY_FILE: "~/.ssh/private.pem"
 
+#--------------------------------------------------------------------------------
+# Docker
+#--------------------------------------------------------------------------------
+docker_group: "docker"
 
+#--------------------------------------------------------------------------------
+# K8S
+#--------------------------------------------------------------------------------
 K8S_CONFIG_FILE: "/etc/kubernetes/config"
 KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
 
@@ -35,3 +42,5 @@ K8S_COMMON_SERVICES:
 K8S_NETWORK_PROVIDER: "{{ CNI_PROVIDER_FLANNEL }}"
 K8S_NETWORK_SERVICES:
   - flanneld
+
+KUBEPROXY_PORT: 8001

@@ -1,0 +1,14 @@
+#--------------------------------------------------------------------------------
+# Install Pckages
+#--------------------------------------------------------------------------------
+- name: "Install datadog packages"
+  yum:
+    name: "{{ item }}"
+    state: "present"
+    update_cache: "true"
+  with_items: "{{ datadog_packages }}"
+  when: false
+
+- name: "Install/update Datadog agent"
+  shell: |
+    DD_API_KEY={{ datadog_api_key }} bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"

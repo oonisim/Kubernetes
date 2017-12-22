@@ -18,16 +18,57 @@
 
 - name: "Force systemd to reread configs (2.4 and above)"
   systemd: daemon_reload=yes
-#--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# Start Kubelet as instructed in kubeadm document, however will fail due to
-# https://github.com/kubernetes/kubernetes/issues/53889
-#--------------------------------------------------------------------------------
-- name: "Start k8s services"
+- name: "Restart k8s services"
   service:
     name:     "{{ item }}"
     state:    "restarted"
     enabled:  "yes"
   with_items: "{{ K8S_COMMON_SERVICES }}"
 
+#--------------------------------------------------------------------------------
+# Datadog K8S on host
+#--------------------------------------------------------------------------------
+- include: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
+- name: "Adding dd-agent user to docker group."
+  user:
+    name:   "{{ item }}"
+    groups: "{{ docker_group }}"
+    append: "yes"                 # useradd -aG
+  with_items:
+    - "dd-agent"
+
+- name: "Datadog Process and Container Monitoring (https://docs.datadoghq.com/infrastructure/process/)"
+  lineinfile:
+    path: /etc/dd-agent/datadog.conf
+    regexp: '^process_agent_enabled:(\s)+true(\s)*'
+    insertafter: '^[Main].*$'
+    line: 'process_agent_enabled: true'
+
+- name: "Place kubernetes_state manifest."
+  template:
+    src: "{{ role_path }}/templates/kubernetes_state.yaml.j2"
+    dest: "/etc/dd-agent/conf.d/kubernetes_state.yaml"
+    owner: "dd-agent"
+    group: "dd-agent"
+    mode: 0640
+
+- name: "Check kube proxy"
+  shell: |
+    netstat -tnlp | grep {{ KUBEPROXY_PORT }}
+  register: isKubeProxyRunning
+  ignore_errors: true
+
+- name: "Start kube proxy"
+  shell: |
+    nohup kubectl proxy --port={{ KUBEPROXY_PORT }} &
+  when: isKubeProxyRunning.rc != 0
+
+
+#--------------------------------------------------------------------------------
+# Resgart DD agent on host
+#--------------------------------------------------------------------------------
+- name: "Restart dd-agetnt on the host"
+  shell: |
+    /etc/init.d/datadog-agent restart
+  register: ddagent_restart
