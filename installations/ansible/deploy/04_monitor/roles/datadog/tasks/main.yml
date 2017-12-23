@@ -22,21 +22,57 @@
 
 - name: "Check if dd-agent has been installed."
   shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl get daemonset dd-agent
   register: isDDAgentRunning
   ignore_errors: "true"
 
 - name: "Delete dd-agent if already installed."
   shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl apply -f ~{{ K8S_ADMIN }}/dd-agent.yaml
     kubectl delete daemonset dd-agent
   when: isDDAgentRunning.rc == 0
 
 - name: "Deploy dd-agent."
   shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl create -f ~{{ K8S_ADMIN }}/dd-agent.yaml
 
+#--------------------------------------------------------------------------------
+# kube-state-metrcs
+# https://github.com/kubernetes/kube-state-metrics
+# No need to build the docker image. It is already in the docker registry.
+# kubectl apply -f kubernetes can be repeately applicable with no error.
+#--------------------------------------------------------------------------------
+- name: "DD agent leader election for kube-state-mertic event collection"
+  template:
+    src: "{{ role_path }}/templates/dd_leader_election.yaml.j2"
+    dest: "~{{ K8S_ADMIN }}/dd_leader_election.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    group: "{{ K8S_GROUP }}"
+    mode: 0660
 
+- name: "Deploy kube-state-metrics"
+  shell: |
+    kubectl create -f ~{{ K8S_ADMIN }}/dd_leader_election.yaml
+
+- name: "Deploy kube-state-metrics"
+  shell: |
+    cd ~{{ K8S_ADMIN }}
+    go get k8s.io/kube-state-metrics
+    cd go/src/k8s.io/kube-state-metrics
+    kubectl apply -f kubernetes
+
+
+#--------------------------------------------------------------------------------
+# Start kube proxy on master
+#--------------------------------------------------------------------------------
+#- name: "Check kube proxy"
+#  shell: |
+#    netstat -tnlp | grep {{ KUBEPROXY_PORT }}
+#  register: isKubeProxyRunning
+#  ignore_errors: true
+
+# export KUBECONFIG=/etc/kubernetes/admin.conf is MUST
+#- name: "Start kube proxy"
+#  shell: |
+#    nohup kubectl proxy --port={{ KUBEPROXY_PORT }} --address={{ K8S_MASTER_NODE_IP }} --accept-hosts='{{ KUBEPROXY_ACCEPT_HOSTS }}'&
+#  when: isKubeProxyRunning.rc != 0

@@ -45,24 +45,18 @@
     insertafter: '^[Main].*$'
     line: 'process_agent_enabled: true'
 
-- name: "Place kubernetes_state manifest."
-  template:
-    src: "{{ role_path }}/templates/kubernetes_state.yaml.j2"
-    dest: "/etc/dd-agent/conf.d/kubernetes_state.yaml"
-    owner: "dd-agent"
-    group: "dd-agent"
-    mode: 0640
-
-- name: "Check kube proxy"
-  shell: |
-    netstat -tnlp | grep {{ KUBEPROXY_PORT }}
-  register: isKubeProxyRunning
-  ignore_errors: true
-
-- name: "Start kube proxy"
-  shell: |
-    nohup kubectl proxy --port={{ KUBEPROXY_PORT }} &
-  when: isKubeProxyRunning.rc != 0
+#--------------------------------------------------------------------------------
+# https://docs.datadoghq.com/integrations/kubernetes_state/ is incorrect.
+# No need to use /etc/dd-agent/conf.d/kubernetes_state.yaml.
+#--------------------------------------------------------------------------------
+#- name: "Place kubernetes_state manifest."
+#  template:
+#    src: "{{ role_path }}/templates/kubernetes_state.yaml.j2"
+#    dest: "/etc/dd-agent/conf.d/kubernetes_state.yaml"
+#    owner: "dd-agent"
+#    group: "dd-agent"
+#    mode: 0640
+#--------------------------------------------------------------------------------
 
 
 #--------------------------------------------------------------------------------

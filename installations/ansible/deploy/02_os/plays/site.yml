@@ -11,5 +11,7 @@
     - hosts
     - ntp
     - docker
+    - user.admin
     # swapoff MUST be last as it reboot to make sure to disable swap.
     - swapoff
+

@@ -3,12 +3,13 @@
     path:  "~/.kube"
     state: "absent"
 
-- name: "Remove ~/.kube"
+- name: "Create ~/.kube"
   file:
     path:   "~{{ K8S_ADMIN }}/.kube"
     state:  "directory"
     owner:  "{{ K8S_ADMIN }}"
-    group:  "docker"
+    group:  "{{ K8S_GROUP }}"
+    mode:   "0750"
 
 - name: "User configuration for k8s"
   shell: |
@@ -16,11 +17,13 @@
   args:
     executable: /bin/bash
 
-- name: "Change owner of .kube/config"
+- name: "Change owner of .kube/config/config"
   file:
     path:   "~{{ K8S_ADMIN }}/.kube/config"
     state:  "file"
     owner:  "{{ K8S_ADMIN }}"
-    group:  "docker"
+    group:  "{{ K8S_GROUP }}"
+    mode:   "0640"
+    recurse: "true"
 
 

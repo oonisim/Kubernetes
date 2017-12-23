@@ -87,3 +87,10 @@
     update_cache: "true"
   with_items: "{{ K8S_PACKAGES }}"
 
+# kubenetes ecosystem (such as kube-state-metrics) depends on Go lang.
+- name: "Install/upate golang"
+  yum:
+    name:  "{{ item }}"
+    state: "latest"
+    update_cache: "true"
+  with_items: "{{ golang_packages }}"

@@ -1,15 +1,17 @@
 ---
 users:
   - name: "{{ SYS_USER }}"
-    group: "{{ K8S_GROUP }} "
+    group: "{{ K8S_GROUP }}"
+    groups: "{{ docker_group }},{{ sudoer_group }}"
     authorized:
       - "/home/{{ SYS_USER }}/.ssh/id_rsa.pub"
-    password: $6$r1KIpyQw8$pWIMAT87xWOQ74xDP70RJQ/53v1pWTuic4DewtsRekZqacT3ieto17TAyEhI8IuyfIaBClFgEYb/GRcRxEzfY0
+    password: "$6$lvOMGppNKTpUOL1u$kf5zKyxl7glYWif4QD3Q0IIoVeG5fy/feZQ5JE.haeHLE4qaNEq8J4Rl6Tg0xJ4L4sxOMA6kmvro34ou2RkPD0"
     private_key:
       - "{{ DECRYPT_KEY_FILE }}"
 
   - name: "{{ PKG_USER }}"
-    group: "{{ K8S_GROUP }} "
+    group: "{{ K8S_GROUP }}"
+    groups: "{{ sudoer_group }}"
     authorized:
       - "/home/{{ PKG_USER }}/.ssh/id_rsa.pub"
     password:

@@ -1,3 +1,4 @@
+---
 - name: K8s configurations for master
   hosts: masters
   any_errors_fatal: true
@@ -6,4 +7,11 @@
   become_method: sudo
   roles:
     - datadog_common
+
+- name: K8s configurations for master
+  hosts: masters
+  any_errors_fatal: true
+  become: yes
+  become_user: "{{ K8S_ADMIN }}"
+  roles:
     - datadog

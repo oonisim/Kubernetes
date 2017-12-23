@@ -10,7 +10,7 @@ instances:
   # Note for RHEL and SUSE users: due to compatibility issues, the check does not make use of
   # the CPP extension to process Protocol buffer messages coming from the api. Depending
   # on the metrics volume, the check may run very slowly.
-  - kube_state_url: http://localhost:{{ KUBEPROXY_PORT }}/metrics
+  - kube_state_url: http://{{ K8S_MASTER_NODE_IP }}:{{ KUBEPROXY_PORT }}/metrics
     # Tags are reported as set by kube-state-metrics. If you want to translate
     # them to other tags, you can use the labels_mapper dictionary
     # labels_mapper:

@@ -1,3 +1,7 @@
+SYS_USER: maonishi
+PKG_USER: maonishi
+
+
 #K8S_GROUP:
 K8S_ADMIN : maonishi
 K8S_GROUP: k8s

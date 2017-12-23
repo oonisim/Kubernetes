@@ -1,6 +1,7 @@
 #--------------------------------------------------------------------------------
 # Install Pckages
 #--------------------------------------------------------------------------------
+- include_vars: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
 - include: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
 
 #--------------------------------------------------------------------------------
@@ -34,51 +35,3 @@
 - name: "Force systemd to reread configs (2.4 and above)"
   systemd: daemon_reload=yes
 #--------------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------------
-# Start Kubelet as instructed in kubeadm document, however will fail due to
-# https://github.com/kubernetes/kubernetes/issues/53889
-#--------------------------------------------------------------------------------
-- name: "Start k8s services"
-  service:
-    name:     "{{ item }}"
-    state:    "restarted"
-    enabled:  "yes"
-  with_items: "{{ K8S_COMMON_SERVICES }}"
-
-#--------------------------------------------------------------------------------
-# Updte K8S_CONFIG_FILE
-#--------------------------------------------------------------------------------
-- name: "Update KUBE_LOGTOSTDERR in {{ K8S_CONFIG_FILE }}..."
-  lineinfile:
-    path: "{{ K8S_CONFIG_FILE }}"
-    regexp: '^KUBE_LOGTOSTDERR=.*'
-    line: 'KUBE_LOGTOSTDERR="--logtostderr=true"'
-    state: "present"
-    create: "yes"
-
-- name: "Update KUBE_LOG_LEVEL in {{ K8S_CONFIG_FILE }}..."
-  lineinfile:
-    path: "{{ K8S_CONFIG_FILE }}"
-    regexp: '^KUBE_LOG_LEVEL=.*'
-    line: 'KUBE_LOG_LEVEL="--v=0"'
-    state: "present"
-    create: "yes"
-
-- name: "Update KUBE_ALLOW_PRIV in {{ K8S_CONFIG_FILE }}..."
-  lineinfile:
-    path: "{{ K8S_CONFIG_FILE }}"
-    regexp: '^KUBE_ALLOW_PRIV=.*'
-    line: 'KUBE_ALLOW_PRIV="--allow-privileged=false"'
-    state: "present"
-    create: "yes"
-
-- name: "Update KUBE_MASTER in {{ K8S_CONFIG_FILE }}..."
-  lineinfile:
-    path: "{{ K8S_CONFIG_FILE }}"
-    regexp: '^KUBE_MASTER=.*'
-#    line: 'KUBE_MASTER="--master=http://{{ K8S_MASTER_HOSTNAME }}:8080"'
-    line: 'KUBE_MASTER="--master=http://{{ K8S_MASTER_NODE_IP }}:8080"'
-    state: "present"
-    create: "yes"
-

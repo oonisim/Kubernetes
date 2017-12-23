@@ -15,6 +15,6 @@
   ignore_errors: true
 
 - pause:
-    prompt: "The system restarts in 1 min to complete disabling swap (otherwise error with kubeadm)..."
-    minutes: 3
+    prompt: "The system has restarted to complete disabling swap (otherwise error with kubeadm)..."
+    minutes: 1
 

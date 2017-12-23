@@ -1,0 +1,15 @@
+#--------------------------------------------------------------------------------
+# Guestbook application.
+# https://gist.github.com/johnaxel/ac45db708b74bd00343c874b9a9b99dd
+#--------------------------------------------------------------------------------
+- name: "Place guestbook manifest"
+  copy:
+    src: "{{ role_path }}/files/guestbook-deployment-full.yaml"
+    dest: "~{{ K8S_ADMIN }}/guestbook-deployment-full.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    mode: 0644
+
+- name: "Deploy dd-guestbook application"
+  shell: |
+    kubectl create -f ~{{ K8S_ADMIN }}/guestbook-deployment-full.yaml
+

@@ -1,7 +1,7 @@
 
 
 services:
-  endpoint:
+  endpoint1:
     name: "apiserver"
     protocol: "https"
     host: "ip-10-0-4-21.ap-southeast-2.compute.internal"
@@ -11,7 +11,7 @@ services:
     ca_certs:     /etc/origin/master/ca.crt
     client_cert:  /etc/origin/master/admin.crt
     client_key:   /etc/origin/master/admin.key
-  endpoint:
+  endpoint2:
     name: "kubelet-mule-a"
     protocol: "https"
     host: "ip-10-0-4-42.ap-southeast-2.compute.internal"
@@ -21,7 +21,7 @@ services:
     ca_certs:     /etc/origin/master/ca.crt
     client_cert:  /etc/origin/master/admin.crt
     client_key:   /etc/origin/master/admin.key
-  endpoint:
+  endpoint3:
     name: "kubelet-mule-b"
     protocol: "https"
     host: "ip-10-0-16-42.ap-southeast-2.compute.internal"
