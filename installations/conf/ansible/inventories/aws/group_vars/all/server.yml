@@ -24,11 +24,16 @@ DECRYPT_KEY_FILE: "~/.ssh/private.pem"
 docker_group: "docker"
 
 #--------------------------------------------------------------------------------
+# Etcd
+#--------------------------------------------------------------------------------
+ETCD_CONFIG_HOME: /etc/kubernetes
+
+#--------------------------------------------------------------------------------
 # K8S
 #--------------------------------------------------------------------------------
-K8S_CONFIG_FILE: "/etc/kubernetes/config"
+K8S_CONFIG_HOME: "/etc/kubernetes"
+K8S_CONFIG_FILE: "{{ K8S_CONFIG_HOME}}/config"
 KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
-
 
 K8S_PACKAGES:
   - kubeadm

@@ -1,0 +1,31 @@
+#--------------------------------------------------------------------------------
+# Guestbook application.
+# https://gist.github.com/johnaxel/ac45db708b74bd00343c874b9a9b99dd
+#--------------------------------------------------------------------------------
+- name: "Create ~/example/k8sbook"
+  file:
+    path:   "~{{ K8S_ADMIN }}/example/k8sbook"
+    state:  "directory"
+    owner:  "{{ K8S_ADMIN }}"
+    group:  "{{ K8S_GROUP }}"
+    mode:   "0750"
+
+- name: "Place k8sbook rs manifest"
+  copy:
+    src: "{{ role_path }}/files/rs.yaml"
+    dest: "~{{ K8S_ADMIN }}/example/k8sbook/rs.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    mode: 0644
+
+- name: "Place k8sbook svc manifest"
+  copy:
+    src: "{{ role_path }}/files/svc.yaml"
+    dest: "~{{ K8S_ADMIN }}/example/k8sbook/svc.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    mode: 0644
+
+- name: "Deploy k8sbook application"
+  shell: |
+    kubectl create -f ~{{ K8S_ADMIN }}/example/k8sbook/rs.yaml
+    kubectl create -f ~{{ K8S_ADMIN }}/example/k8sbook/svc.yaml
+

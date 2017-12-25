@@ -1,12 +1,14 @@
 ---
-- name: K8s configurations for master
+- name: "K8s installation for master"
   hosts: masters
   any_errors_fatal: true
   become: yes
   become_user: root
   become_method: sudo
   roles:
-    - datadog_common
+    - datadog_installation
+    - datadog_k8sintegration_common
+    - datadog_check_k8s
 
 - name: K8s configurations for master
   hosts: masters
@@ -14,4 +16,4 @@
   become: yes
   become_user: "{{ K8S_ADMIN }}"
   roles:
-    - datadog
+    - datadog_k8sintegration_master

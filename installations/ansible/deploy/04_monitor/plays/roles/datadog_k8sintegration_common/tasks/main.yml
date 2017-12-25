@@ -29,7 +29,6 @@
 #--------------------------------------------------------------------------------
 # Datadog K8S on host
 #--------------------------------------------------------------------------------
-- include: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
 - name: "Adding dd-agent user to docker group."
   user:
     name:   "{{ item }}"

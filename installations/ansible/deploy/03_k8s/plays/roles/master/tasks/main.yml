@@ -92,3 +92,13 @@
 #    enabled: "yes"
 #  with_items: "{{ K8S_NETWORK_SERVICES }}"
 
+#--------------------------------------------------------------------------------
+# Change group of the K8S configurations
+#--------------------------------------------------------------------------------
+- name: "Change group of the K8S configurations"
+  file:
+    path:     "{{ K8S_CONFIG_HOME }}"
+    state:    "directory"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0640"
+    recurse:  true

@@ -50,9 +50,20 @@
     group: "{{ K8S_GROUP }}"
     mode: 0660
 
-- name: "Deploy kube-state-metrics"
+- name: "Check if datadog cluster role exists"
+  shell: |
+    kubectl get ClusterRole datadog
+  register: _existsDDClusterRole
+
+- name: "Deploy datadog cluster role"
   shell: |
     kubectl create -f ~{{ K8S_ADMIN }}/dd_leader_election.yaml
+  when: _existsDDClusterRole.rc != 0
+
+- name: "Update datadog cluster role"
+  shell: |
+    kubectl apply -f ~{{ K8S_ADMIN }}/dd_leader_election.yaml
+  when: _existsDDClusterRole.rc == 0
 
 - name: "Deploy kube-state-metrics"
   shell: |

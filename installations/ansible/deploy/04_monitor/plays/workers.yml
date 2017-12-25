@@ -5,4 +5,5 @@
   become_user: root
   become_method: sudo
   roles:
-    - datadog_common
+    - datadog_installation
+    - datadog_k8sintegration_common
