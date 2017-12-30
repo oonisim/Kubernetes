@@ -39,3 +39,15 @@
 #- name: "Kubeadmn join"
 #  shell: |
 #    kubeadm join --token={{ K8S_TOKEN }} --discovery-token-ca-cert-hash sah256:${K8S_MASTER_CA_HASH} ${K8S_MASTER_NODE_IP}:${K8S_API_SERCURE_PORT}
+
+
+#--------------------------------------------------------------------------------
+# Change group of the K8S configurations
+#--------------------------------------------------------------------------------
+- name: "Change group of the K8S configurations"
+  file:
+    path:     "{{ K8S_CONFIG_HOME }}"
+    state:    "directory"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0650"
+    recurse:  true

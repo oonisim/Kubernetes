@@ -7,3 +7,12 @@
   roles:
     - common
     - master
+
+- name: K8s dashboard
+  hosts: masters
+  any_errors_fatal: true
+  become: yes
+  become_user: "{{ K8S_ADMIN}}"
+  become_method: sudo
+  roles:
+    - dashboard

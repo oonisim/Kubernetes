@@ -1,0 +1,35 @@
+#--------------------------------------------------------------------------------
+# Install K8S Dashboard
+#--------------------------------------------------------------------------------
+- name: "Check if dashboard has been installed."
+  shell: |
+    kubectl -n kube-system get service kubernetes-dashboard
+  register: isDashboardInstalled
+  ignore_errors: "true"
+
+- name: "Install Dashboard"
+  shell: |
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+  when: isDashboardInstalled != 0
+
+- name: "Place dashboard cluster role binding manifest."
+  copy:
+    src: "{{ role_path }}/files/dashboard-admin.yaml"
+    dest: "~{{ K8S_ADMIN }}/dashboard-admin.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    mode: 0644
+
+- name: "Check if dashboard-admin has been installed."
+  shell: |
+    kubectl get ClusterRole kubernetes-dashboard --all-namespaces
+  register: isDashboardRoleBindingInstalled
+  ignore_errors: "true"
+
+- name: "Delete dashboard-admin if already installed."
+  shell: |
+    kubectl delete ClusterRole kubernetes-dashboard
+  when: isDashboardRoleBindingInstalled.rc == 0
+
+- name: "Deploy dashboard-admin."
+  shell: |
+    kubectl create -f ~{{ K8S_ADMIN }}/dashboard-admin.yaml

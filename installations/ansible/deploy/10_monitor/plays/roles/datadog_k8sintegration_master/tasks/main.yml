@@ -28,7 +28,6 @@
 
 - name: "Delete dd-agent if already installed."
   shell: |
-    kubectl apply -f ~{{ K8S_ADMIN }}/dd-agent.yaml
     kubectl delete daemonset dd-agent
   when: isDDAgentRunning.rc == 0
 
@@ -54,6 +53,7 @@
   shell: |
     kubectl get ClusterRole datadog
   register: _existsDDClusterRole
+  ignore_errors: true
 
 - name: "Deploy datadog cluster role"
   shell: |

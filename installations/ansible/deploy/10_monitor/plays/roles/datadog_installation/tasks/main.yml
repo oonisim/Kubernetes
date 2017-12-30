@@ -8,3 +8,16 @@
     name:     "dd-agent"
     groups:   "{{ K8S_GROUP }}"
     append:   "yes"                 # useradd -aG
+
+
+#--------------------------------------------------------------------------------
+# Make sure dd-agent user can access K8S client certificates for K8S checks.
+# This has been done in K8S installation module but to be sure.
+#--------------------------------------------------------------------------------
+- name: "Change group of the K8S configurations"
+  file:
+    path:     "{{ K8S_CONFIG_HOME }}"
+    state:    "directory"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0650"
+    recurse:  true

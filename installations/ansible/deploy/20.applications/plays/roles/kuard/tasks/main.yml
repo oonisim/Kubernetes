@@ -1,0 +1,82 @@
+- name: "~{{ K8S_ADMIN }}/apps/{{role_path|basename}}"
+  file:
+    path:     "~{{ K8S_ADMIN }}/apps/{{role_path|basename}}"
+    state:    "absent"
+
+- file:
+    path:     "~{{ K8S_ADMIN }}/apps/{{role_path|basename}}"
+    state:    "directory"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0750"
+    recurse:  true
+
+- name: "Git clone kurd application"
+  shell: |
+    git clone https://github.com/kubernetes-up-and-running/examples ~{{ K8S_ADMIN }}/apps/{{role_path|basename}}
+
+- name: "Fix 5-1-kuard-pod.yaml"
+  copy:
+    src: "{{ role_path }}/files/5-1-kuard-pod.yaml"
+    dest: "~{{ K8S_ADMIN }}/apps/{{role_path|basename}}/5-1-kuard-pod.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    mode: 0644
+
+- name: "Check kuard installed"
+  shell: |
+    kubectl get pod kuard -n default
+  register: isKuardInstalled
+  ignore_errors: true
+
+- name: "Delete {{role_path|basename}} application"
+  shell: |
+    cd ~{{ K8S_ADMIN }}/apps/{{role_path|basename}}
+    kubectl delete -f 5-1-kuard-pod.yaml
+    kubectl delete -f 5-2-kuard-pod-health.yaml
+  when: isKuardInstalled.rc == 0
+  ignore_errors: true
+
+- name: "Wait {{role_path|basename}} application terminated"
+  shell: |
+    cd ~{{ K8S_ADMIN }}/apps/{{role_path|basename}}
+    while [ "$(kubectl get pod -n default --no-headers | grep {{role_path|basename}} | awk '{ print $3 }')" == "Terminating" ]
+      do kubectl get pod -n default
+      sleep 1
+    done
+  when: isKuardInstalled.rc == 0
+
+- name: "Check kuard terminated for sure"
+  shell: |
+    kubectl get pods -n default
+  ignore_errors: true
+
+- name: "Deploy kurd application"
+  shell: |
+    cd ~{{ K8S_ADMIN }}/apps/{{role_path|basename}}
+    kubectl apply -f 5-1-kuard-pod.yaml
+#    kubectl apply -f 5-2-kuard-pod-health.yaml
+
+- name: "Wait for kurd pod"
+  shell: |
+    cd ~{{ K8S_ADMIN }}/apps/{{role_path|basename}}
+    rm -f kuard.log
+    while [ "$(kubectl get pod -n default --no-headers | grep {{role_path|basename}} | awk '{ print $3 }')" != "Running" ]
+      do kubectl get pod -n default >> kuard.log
+      sleep 1
+    done
+    cat kuard.log
+
+- name: "Port forward from 8080 of the host to 8080 in pod"
+  shell: |
+    cd ~{{ K8S_ADMIN }}/apps
+    stat kuard_portfoward_pid.txt && kill -9 $(cat kuard_portfoward_pid.txt)
+  ignore_errors: true
+
+- name: "Port forward from 8080 of the host to 8080 in pod"
+  shell: |
+    cd ~{{ K8S_ADMIN }}/apps
+    nohup kubectl port-forward kuard 8080:8080 &
+    echo $! > kuard_portfoward_pid.txt
+
+# To access kuard:
+# ssh -i ~/.ssh/aws_maonishi_us-west-1pem.pem -L localhost:8080:127.0.0.1:8080 centos@50.18.71.232
+# http://localhost:8080

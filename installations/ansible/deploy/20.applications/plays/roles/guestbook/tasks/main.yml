@@ -11,5 +11,5 @@
 
 - name: "Deploy dd-guestbook application"
   shell: |
-    kubectl create -f ~{{ K8S_ADMIN }}/guestbook-deployment-full.yaml
+    kubectl apply -f ~{{ K8S_ADMIN }}/guestbook-deployment-full.yaml
 
