@@ -10,9 +10,7 @@
 - name: "Delete secrets for api server client certifiate and key"
   shell: |
     export KUBECONFIG=/etc/kubernetes/admin.conf
-    kubectl get secret apiserver-client.crt && kubectl delete secret apiserver-client.crt
-    kubectl get secret apiserver-client.key && kubectl delete secret apiserver-client.key
-    kubectl get secret apiserver-ca.crt     && kubectl delete secret apiserver-ca.crt
+    kubectl get secret k8s-certs && kubectl delete secret k8s-certs
   become: true
   become_user: root
   ignore_errors: true
@@ -21,11 +19,12 @@
 # Create secrets for client certificates for dd-agent to use.
 #--------------------------------------------------------------------------------
 - name: "Create secrets for api server client certifiate and key"
-  shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
-    kubectl create secret generic apiserver-client.crt --from-file=/etc/kubernetes/pki/apiserver-kubelet-client.crt
-    kubectl create secret generic apiserver-client.key --from-file=/etc/kubernetes/pki/apiserver-kubelet-client.key
-    kubectl create secret generic apiserver-ca.crt     --from-file=/etc/kubernetes/pki/ca.crt
+  shell: >
+    KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl create secret generic k8s-certs
+    --from-file=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+    --from-file=/etc/kubernetes/pki/apiserver-kubelet-client.key
+    --from-file=/etc/kubernetes/pki/ca.crt
   become: true
   become_user: root
 

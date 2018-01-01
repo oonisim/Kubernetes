@@ -17,9 +17,9 @@ data:
         - filesystem.*
         - memory.*
         - network.tcp6.*
-        apiserver_client_crt: /etc/dd-agent/conf.d/apiserver-kubelet-client.key
-        apiserver_client_key: /etc/dd-agent/conf.d/aapiserver-kubelet-client.key
-        apiserver_ca_cert:    /etc/dd-agent/conf.d/ca.crt
+        apiserver_client_crt: /etc/secret/apiserver-kubelet-client.crt
+        apiserver_client_key: /etc/secret/apiserver-kubelet-client.key
+        apiserver_ca_cert:    /etc/secret/ca.crt
     tags:
       - dd-agent:true
 
@@ -84,15 +84,9 @@ spec:
           #--------------------------------------------------------------------------------
           # Mount API server client certificate and CA files as secrets
           #--------------------------------------------------------------------------------
-          - name: apiserver-client-crt
-            mountPath: /conf.d
-            readOnly: true
-          - name: apiserver-client-key
-            mountPath: /conf.d
-            readOnly: true
-          - name: apiserver-ca-crt
-            mountPath: /conf.d
-            readOnly: true
+          - name: k8s-certs
+            mountPath:  /etc/secret
+            readOnly:   true
           #--------------------------------------------------------------------------------
           # Mount API server client certificate and CA files as secrets
           #--------------------------------------------------------------------------------
@@ -101,7 +95,7 @@ spec:
             # Does not work causing CrashLoopBackOff status to dd-agent pods.
             #--------------------------------------------------------------------------------
             #mountPath: /etc/dd-agent/conf.d
-            mountPath: /conf.d     # somehow it goes to /etc/dd-agent/conf.d
+            mountPath:  /conf.d     # somehow it goes to /etc/dd-agent/conf.d
             #--------------------------------------------------------------------------------
             readOnly: true
         lifecycle:
@@ -127,15 +121,11 @@ spec:
         #--------------------------------------------------------------------------------
         # API server client certificate and CA files as secrets
         #--------------------------------------------------------------------------------
-        - name: apiserver-client-crt
+        - name: k8s-certs
           secret:
-            secretName: apiserver-client.crt
-        - name: apiserver-client-key
-          secret:
-            secretName: apiserver-client.key
-        - name: apiserver-ca-crt
-          secret:
-            secretName: apiserver-ca.crt
+            secretName:  k8s-certs
+            defaultMode: 448     # 0700 as JSON does not support octal
+
         #--------------------------------------------------------------------------------
         # /etc/dd-agent/conf.d/kubernetes.yaml for further monitoring.
         # https://gist.github.com/CharlyF/dd481c3ed4fe38e2e47b4ccd85328032
