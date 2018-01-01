@@ -17,9 +17,9 @@ data:
         - filesystem.*
         - memory.*
         - network.tcp6.*
-        apiserver_client_crt: /etc/dd-agent/conf.d/apiserver-client.key
-        apiserver_client_key: /etc/dd-agent/conf.d/apiserver-client.key
-        apiserver_ca_cert:    /etc/dd-agent/conf.d/apiserver-ca.crt
+        apiserver_client_crt: /etc/dd-agent/conf.d/apiserver-kubelet-client.key
+        apiserver_client_key: /etc/dd-agent/conf.d/aapiserver-kubelet-client.key
+        apiserver_ca_cert:    /etc/dd-agent/conf.d/ca.crt
     tags:
       - dd-agent:true
 
@@ -81,23 +81,33 @@ spec:
           - name: cgroups
             mountPath: /host/sys/fs/cgroup
             readOnly: true
-          - name: passwd
-            mountPath: /etc/passwd
-            readOnly: true
           #--------------------------------------------------------------------------------
           # Mount API server client certificate and CA files as secrets
           #--------------------------------------------------------------------------------
           - name: apiserver-client-crt
-            mountPath: /etc/dd-agent/conf.d/apiserver_client.crt
+            mountPath: /conf.d
+            readOnly: true
           - name: apiserver-client-key
-            mountPath: /etc/dd-agent/conf.d/apiserver-client.key
+            mountPath: /conf.d
+            readOnly: true
           - name: apiserver-ca-crt
-            mountPath: /etc/dd-agent/conf.d/apiserver-ca.crt
+            mountPath: /conf.d
+            readOnly: true
           #--------------------------------------------------------------------------------
           # Mount API server client certificate and CA files as secrets
           #--------------------------------------------------------------------------------
           - name: dd-agent-config
-            mountPath: /etc/dd-agent/conf.d
+            #--------------------------------------------------------------------------------
+            # Does not work causing CrashLoopBackOff status to dd-agent pods.
+            #--------------------------------------------------------------------------------
+            #mountPath: /etc/dd-agent/conf.d
+            mountPath: /conf.d     # somehow it goes to /etc/dd-agent/conf.d
+            #--------------------------------------------------------------------------------
+            readOnly: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "-c", "/etc/init.d/datadog-agent restart"]
         livenessProbe:
           exec:
             command:
@@ -114,9 +124,6 @@ spec:
         - hostPath:
             path: /sys/fs/cgroup
           name: cgroups
-        - hostPath:
-            path: /etc/hosts
-          name: passwd
         #--------------------------------------------------------------------------------
         # API server client certificate and CA files as secrets
         #--------------------------------------------------------------------------------
