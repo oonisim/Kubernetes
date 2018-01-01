@@ -10,7 +10,7 @@
 #     └── main.sh   <--- This script
 #--------------------------------------------------------------------------------
 DIR=$(realpath $(dirname $0))
-FILES_DIR=$(realpath "$(dirname $0)")/../roles/site.hosts/files
+#FILES_DIR=$(realpath "$(dirname $0)")/../roles/hosts/files
 
 #HOSTS=$(_locate ${DIR} '/' '2.0/conf')/env/${TARGET}/hosts.${TARGET}
 #if [ -f ${HOSTS} ] ; then

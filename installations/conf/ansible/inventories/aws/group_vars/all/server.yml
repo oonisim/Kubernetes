@@ -35,12 +35,31 @@ K8S_CONFIG_HOME: "/etc/kubernetes"
 K8S_CONFIG_FILE: "{{ K8S_CONFIG_HOME}}/config"
 KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
 
+K8S_PACKAGES_PREREQUISITES:
+  - kubernetes-cni-0.6.0-0.x86_64
+
+K8S_PACKAGES_PREREQUISITES_REMOVE:
+  - kubernetes-cni
+
+
 K8S_PACKAGES:
+#  - kubeadm
+#  - kubelet
+#  - kubectl
+  - kubeadm-1.8.6-0.x86_64
+  - kubectl-1.8.6-0.x86_64
+  - kubelet-1.8.6-0.x86_64
+  - flannel
+  - docker
+
+K8S_PACKAGES_REMOVE:
   - kubeadm
   - kubelet
   - kubectl
+  - kubernetes-cni
   - flannel
   - docker
+
 
 K8S_COMMON_SERVICES:
 # Start flannel is via kubectl apply -f flanne.yaml

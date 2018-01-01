@@ -5,8 +5,7 @@
 - name: "Stop port forwarding to the application pod"
   shell: |
     cd {{ application_home }}
-    for f in $( ls *.pid ) ; do kill $( cat ${f} ) ; done
-#    stat {{ item.name }}.pid  && kill -9 $( cat {{ item.name }}.pid )
+    for f in $( ls *.pid ) ; do kill $( cat ${f} && rm ${f} ) ; done
   with_items: "{{ pods }}"
   ignore_errors: true
 
@@ -85,13 +84,12 @@
   shell: |
     cd {{ application_home }}
     while [ "$(kubectl get pod -n {{ item.namespace }} --no-headers | grep {{ item.name }} | awk '{ print $3 }')" != "Running" ]
-      do kubectl get pod -n {{ item.namespace }} >> {{ item.name }}.log
+      do kubectl get pod -n {{ item.namespace }} | tee -a {{ item.name }}.log
       sleep 1
     done
-    cat {{ item.name }}.log
   with_items: "{{ pods }}"
 
-- name: "Port forward from 8080 of the host to 8080 in pod"
+- name: "Port forward from {{ item.node_port }} of the host to {{ item.pod_port }} in pod"
   shell: |
     cd {{ application_home }}
     nohup kubectl port-forward {{ item.name }} {{ item.node_port }}:{{ item.pod_port }} &

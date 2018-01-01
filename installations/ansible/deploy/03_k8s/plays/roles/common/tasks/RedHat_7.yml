@@ -33,10 +33,15 @@
     path: ~/.kube
     state: absent
 
-- name: "Remove {{ K8S_CONFIG_FILE }}"
+- name: "Remove {{ K8S_CONFIG_HOME }}"
   file:
-    path: "{{ K8S_CONFIG_FILE }}"
+    path: "{{ K8S_CONFIG_HOME }}"
     state: absent
+
+#- name: "Remove {{ K8S_CONFIG_FILE }}"
+#  file:
+#    path: "{{ K8S_CONFIG_FILE }}"
+#    state: absent
 
 - name: "Remove /etc/yum.repos.d/kubernetes.repo"
   file:
@@ -47,7 +52,13 @@
   yum:
     name: "{{ item }}"
     state: "removed"
-  with_items: "{{ K8S_PACKAGES }}"
+  with_items: "{{ K8S_PACKAGES_REMOVE }}"
+
+- name: "Remove K8S prerequisite packages"
+  yum:
+    name: "{{ item }}"
+    state: "removed"
+  with_items: "{{ K8S_PACKAGES_PREREQUISITES_REMOVE }}"
 
 #--------------------------------------------------------------------------------
 # Install Pckages
@@ -79,6 +90,13 @@
 - name: update repo cache for the new repo
   command: yum -q makecache -y --disablerepo=* --enablerepo=Kubernetes
 
+- name: "Install K8S prerequisite packages"
+  yum:
+    name: "{{ item }}"
+    state: "present"
+    update_cache: "true"
+  with_items: "{{ K8S_PACKAGES_PREREQUISITES }}"
+
 - name: "Install packages"
   yum:
     name: "{{ item }}"
@@ -86,3 +104,10 @@
     update_cache: "true"
   with_items: "{{ K8S_PACKAGES }}"
 
+# kubenetes ecosystem (such as kube-state-metrics) depends on Go lang.
+- name: "Install/upate golang"
+  yum:
+    name:  "{{ item }}"
+    state: "latest"
+    update_cache: "true"
+  with_items: "{{ golang_packages }}"

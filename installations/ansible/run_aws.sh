@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-souce ~/.ssh/env_aws_keys.sh
+. ~/.ssh/aws_env_keys.sh
 
 ENVIRONMENT=aws
 REMOTE_USER=centos
 HOSTFILE_DIR=/Users/maonishi/home/repositories/git/Kubernetes/installations/ansible/deploy/02_os/roles/hosts/files
 
 cd $(dirname $0)
-#./aws/ec2/creation/scripts/main.sh ${ENVIRONMENT} master
-#./aws/ec2/creation/scripts/main.sh ${ENVIRONMENT} worker
+./aws/ec2/creation/scripts/main.sh ${ENVIRONMENT} master
+./aws/ec2/creation/scripts/main.sh ${ENVIRONMENT} worker
 ./aws/ec2/operations/scripts/generate_hosts.sh ${ENVIRONMENT} ${HOSTFILE_DIR}
 
 echo "update the env"
