@@ -6,9 +6,9 @@
   become_user: root
   become_method: sudo
   roles:
-    - datadog_installation
-    - datadog_k8sintegration_common
-    - datadog_check_k8s
+#    - datadog_installation
+#    - datadog_k8sintegration_common
+#    - datadog_check_k8s
 
 - name: K8s configurations for master
   hosts: masters

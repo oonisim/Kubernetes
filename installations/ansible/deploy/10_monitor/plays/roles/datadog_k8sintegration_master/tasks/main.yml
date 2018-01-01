@@ -1,14 +1,34 @@
 #--------------------------------------------------------------------------------
-# HTTP check on host
+# Clean up previous intallation.
 #--------------------------------------------------------------------------------
-- name: "Place dd-agent http_check manifest."
-  template:
-    src: "{{ role_path }}/templates/http_check.yaml.j2"
-    dest: "/etc/dd-agent/conf.d/http_check.yaml"
-    owner: "dd-agent"
-    group: "dd-agent"
-    mode: 0640
-  when: false
+- name: "Delete dd-agent."
+  shell: |
+    stat -f ~{{ K8S_ADMIN }}/dd-agent.yaml && kubectl delete -f ~{{ K8S_ADMIN }}/dd-agent.yaml
+    rm -f ~{{ K8S_ADMIN }}/dd-agent.yaml
+  ignore_errors: true
+
+- name: "Delete secrets for api server client certifiate and key"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl get secret apiserver-client.crt && kubectl delete secret apiserver-client.crt
+    kubectl get secret apiserver-client.key && kubectl delete secret apiserver-client.key
+    kubectl get secret apiserver-ca.crt     && kubectl delete secret apiserver-ca.crt
+  become: true
+  become_user: root
+  ignore_errors: true
+
+#--------------------------------------------------------------------------------
+# Create secrets for client certificates for dd-agent to use.
+#--------------------------------------------------------------------------------
+- name: "Create secrets for api server client certifiate and key"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl create secret generic apiserver-client.crt --from-file=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+    kubectl create secret generic apiserver-client.key --from-file=/etc/kubernetes/pki/apiserver-kubelet-client.key
+    kubectl create secret generic apiserver-ca.crt     --from-file=/etc/kubernetes/pki/ca.crt
+  become: true
+  become_user: root
+
 
 #--------------------------------------------------------------------------------
 # Datadog K8S agent setups as daemonset
@@ -20,16 +40,16 @@
     owner: "{{ K8S_ADMIN }}"
     mode: 0644
 
-- name: "Check if dd-agent has been installed."
-  shell: |
-    kubectl get daemonset dd-agent
-  register: isDDAgentRunning
-  ignore_errors: "true"
+#- name: "Check if dd-agent has been installed."
+#  shell: |
+#    kubectl get daemonset dd-agent
+#  register: isDDAgentRunning
+#  ignore_errors: "true"
 
-- name: "Delete dd-agent if already installed."
-  shell: |
-    kubectl delete daemonset dd-agent
-  when: isDDAgentRunning.rc == 0
+#- name: "Delete dd-agent if already installed."
+#  shell: |
+#    kubectl delete daemonset dd-agent
+#  when: isDDAgentRunning.rc == 0
 
 - name: "Deploy dd-agent."
   shell: |

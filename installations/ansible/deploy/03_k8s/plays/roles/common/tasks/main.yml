@@ -32,6 +32,30 @@
     replace:  'Environment="KUBELET_CGROUP_ARGS=--cgroup-driver={{ docker_cgroup.stdout }} --runtime-cgroups=/{{ docker_cgroup.stdout }}/system.slice --kubelet-cgroups=/{{ docker_cgroup.stdout }}/system.slice"'
     backup:   "yes"
 
+#--------------------------------------------------------------------------------
+# To avoid mount: special device /var/lib/kubelet/plugins/kubernetes.io/aws-ebs/mounts/vol-* does not exist
+# https://stackoverflow.com/questions/40109083/kubernetes-mount-special-device-does-not-exist-when-attaching-aws-ebs-volume
+# https://github.com/kubernetes/kubernetes/issues/37844
+# https://github.com/kubernetes/kubeadm/issues/123
+#--------------------------------------------------------------------------------
+- name: "AWS Cloud provider"
+  lineinfile:
+    path:           "{{ KUBELET_CONFIG_FILE }}"
+    regexp:         '^Environment="KUBELET_EXTRA_ARGS=(.+)"\s*$$'
+    line:           'Environment="KUBELET_EXTRA_ARGS=--cloud-provider=aws"'
+    insertbefore:   '^ExecStart=$'
+    state:          "present"
+    backup:         "yes"
+  when: ansible_bios_version.find("amazon") != -1
+
 - name: "Force systemd to reread configs (2.4 and above)"
   systemd: daemon_reload=yes
-#--------------------------------------------------------------------------------
+
+# kubeadm init creates certificates and other files, then starts the required services.
+# Before kubeadm, starting kubelet, etc will fail as they require the files kubeadm generates.
+- name: "Enable k8s services"
+  service:
+    name:     "{{ item }}"
+    state:    "reloaded"
+    enabled:  "yes"
+  with_items: "{{ K8S_COMMON_SERVICES }}"

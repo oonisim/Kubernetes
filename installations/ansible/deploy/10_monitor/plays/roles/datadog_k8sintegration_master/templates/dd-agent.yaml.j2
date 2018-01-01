@@ -1,5 +1,30 @@
-#--------------------------------------------------------------------------------
 #jinja2: lstrip_blocks: "True", trim_blocks: "True"
+#--------------------------------------------------------------------------------
+# Mount /etc/dd-agent/conf.d/kubernetes.yaml as config map.
+#--------------------------------------------------------------------------------
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dd-agent-config
+  namespace: default
+data:
+  kubernetes-config: |
+    init_config:
+    instances:
+      - port: 4194
+        enabled_gauges:
+        - cpu.*
+        - filesystem.*
+        - memory.*
+        - network.tcp6.*
+        apiserver_client_crt: /etc/dd-agent/conf.d/apiserver-client.key
+        apiserver_client_key: /etc/dd-agent/conf.d/apiserver-client.key
+        apiserver_ca_cert:    /etc/dd-agent/conf.d/apiserver-ca.crt
+    tags:
+      - dd-agent:true
+
+---
+#--------------------------------------------------------------------------------
 # Datadog K8S daemonset generated with Ansible
 # https://app.datadoghq.com/account/settings#agent/kubernetes
 #--------------------------------------------------------------------------------
@@ -59,6 +84,20 @@ spec:
           - name: passwd
             mountPath: /etc/passwd
             readOnly: true
+          #--------------------------------------------------------------------------------
+          # Mount API server client certificate and CA files as secrets
+          #--------------------------------------------------------------------------------
+          - name: apiserver-client-crt
+            mountPath: /etc/dd-agent/conf.d/apiserver_client.crt
+          - name: apiserver-client-key
+            mountPath: /etc/dd-agent/conf.d/apiserver-client.key
+          - name: apiserver-ca-crt
+            mountPath: /etc/dd-agent/conf.d/apiserver-ca.crt
+          #--------------------------------------------------------------------------------
+          # Mount API server client certificate and CA files as secrets
+          #--------------------------------------------------------------------------------
+          - name: dd-agent-config
+            mountPath: /etc/dd-agent/conf.d
         livenessProbe:
           exec:
             command:
@@ -78,3 +117,25 @@ spec:
         - hostPath:
             path: /etc/hosts
           name: passwd
+        #--------------------------------------------------------------------------------
+        # API server client certificate and CA files as secrets
+        #--------------------------------------------------------------------------------
+        - name: apiserver-client-crt
+          secret:
+            secretName: apiserver-client.crt
+        - name: apiserver-client-key
+          secret:
+            secretName: apiserver-client.key
+        - name: apiserver-ca-crt
+          secret:
+            secretName: apiserver-ca.crt
+        #--------------------------------------------------------------------------------
+        # /etc/dd-agent/conf.d/kubernetes.yaml for further monitoring.
+        # https://gist.github.com/CharlyF/dd481c3ed4fe38e2e47b4ccd85328032
+        #--------------------------------------------------------------------------------
+        - name: dd-agent-config
+          configMap:
+            name: dd-agent-config
+            items:
+            - key: kubernetes-config
+              path: kubernetes.yaml

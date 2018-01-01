@@ -33,10 +33,15 @@
     path: ~/.kube
     state: absent
 
-- name: "Remove {{ K8S_CONFIG_FILE }}"
+- name: "Remove {{ K8S_CONFIG_HOME }}"
   file:
-    path: "{{ K8S_CONFIG_FILE }}"
+    path: "{{ K8S_CONFIG_HOME }}"
     state: absent
+
+#- name: "Remove {{ K8S_CONFIG_FILE }}"
+#  file:
+#    path: "{{ K8S_CONFIG_FILE }}"
+#    state: absent
 
 - name: "Remove /etc/yum.repos.d/kubernetes.repo"
   file:

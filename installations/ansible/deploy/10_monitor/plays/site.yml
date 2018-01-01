@@ -1,2 +1,2 @@
 - include: masters.yml
-- include: workers.yml
+#- include: workers.yml

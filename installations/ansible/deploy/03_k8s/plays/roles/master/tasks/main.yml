@@ -100,5 +100,5 @@
     path:     "{{ K8S_CONFIG_HOME }}"
     state:    "directory"
     group:    "{{ K8S_GROUP }}"
-    mode:     "0650"
+    mode:     "0640"
     recurse:  true
