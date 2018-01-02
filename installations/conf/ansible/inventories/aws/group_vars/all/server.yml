@@ -29,26 +29,38 @@ docker_group: "docker"
 ETCD_CONFIG_HOME: /etc/kubernetes
 
 #--------------------------------------------------------------------------------
-# K8S
+# K8S configuration file path
 #--------------------------------------------------------------------------------
 K8S_CONFIG_HOME: "/etc/kubernetes"
 K8S_CONFIG_FILE: "{{ K8S_CONFIG_HOME}}/config"
 KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
 
+#--------------------------------------------------------------------------------
+# K8S installation packages
+#--------------------------------------------------------------------------------
+# K8S_PACKAGES_PREREQUISITES:
+# Until 1.8 (not in 1.9), kubelet had dependency on kubernetes-cni, hence
+# Ansible yum for kubelet fails if kubernetes-cni has not been already there.
+# Not required for 1.9/later but to be able to install 1.8/before.
+#
+# See
+# - https://github.com/kubernetes/release/pull/109
+# - https://github.com/kubernetes/release/issues/97
+#--------------------------------------------------------------------------------
 K8S_PACKAGES_PREREQUISITES:
-  - kubernetes-cni-0.6.0-0.x86_64
-
-K8S_PACKAGES_PREREQUISITES_REMOVE:
+#  - kubernetes-cni-0.6.0-0.x86_64
   - kubernetes-cni
 
+K8S_PACKAGES_PREREQUISITES_REMOVE: "{{ K8S_PACKAGES_PREREQUISITES }}"
+#  - kubernetes-cni
 
 K8S_PACKAGES:
-#  - kubeadm
-#  - kubelet
-#  - kubectl
-  - kubeadm-1.8.6-0.x86_64
-  - kubectl-1.8.6-0.x86_64
-  - kubelet-1.8.6-0.x86_64
+  - kubeadm
+  - kubelet
+  - kubectl
+#  - kubeadm-1.8.6-0.x86_64
+#  - kubectl-1.8.6-0.x86_64
+#  - kubelet-1.8.6-0.x86_64
   - flannel
   - docker
 

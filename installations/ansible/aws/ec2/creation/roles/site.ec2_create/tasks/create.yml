@@ -34,17 +34,26 @@
     msg: "{{ item.1 }}"
   with_indexed_items: "{{ ec2.instance_ids }}"
 
-- name: Tag instancess
+#--------------------------------------------------------------------------------
+# [K8S AWS Cloud Provider Notes]
+# https://docs.google.com/document/d/17d4qinC_HnIwrK0GHnRlD1FKkTNdN__VO4TH9-EzbIY/edit
+# Set a tag on all resources in the form of KubernetesCluster=<cluster name>
+#  All instances
+#  One and only one SG for each instance should be tagged.
+#  - This will be modified as necessary to allow ELBs to access the instance
+#--------------------------------------------------------------------------------
+- name: "Tag EC2 instancess"
   ec2_tag:
-    region:           "{{ ec2_region }}"
-    resource:         "{{ item[1] }}"
+    region:               "{{ ec2_region }}"
+    resource:             "{{ item[1] }}"
     tags:
-      Name:           "{{ ENV_ID }}_{{ NODE_TYPE }}{{ '%02d'|format(item[0]|int) }}"
-      type:           "{{ NODE_TYPE }}"
-      environment:    "{{ ENV_ID }}"
-    aws_access_key:   "{{ ec2_access_key }}"
-    aws_secret_key:   "{{ ec2_secret_key }}"
-  with_indexed_items: "{{ ec2.instance_ids }}"
+      Name:               "{{ ENV_ID }}_{{ NODE_TYPE }}{{ '%02d'|format(item[0]|int) }}"
+      type:               "{{ NODE_TYPE }}"
+      environment:        "{{ ENV_ID }}"
+      KubernetesCluster:  "{{ K8S_CLUSTER_NAME }}"
+    aws_access_key:       "{{ ec2_access_key }}"
+    aws_secret_key:       "{{ ec2_secret_key }}"
+  with_indexed_items:     "{{ ec2.instance_ids }}"
 
 - name: Wait for the instance to come up
   wait_for:
@@ -91,3 +100,33 @@
 #  when: 'item.id in ec2.instance_ids'
 #  with_items: "{{ ec2_list.instances }}"
 #  register: ec2_groups
+
+#--------------------------------------------------------------------------------
+# Tag SG to satisfy AWS cloud provider requirement of K8S.
+#--------------------------------------------------------------------------------
+# [K8S AWS Cloud Provider Notes]
+# https://docs.google.com/document/d/17d4qinC_HnIwrK0GHnRlD1FKkTNdN__VO4TH9-EzbIY/edit
+# Set a tag on all resources in the form of KubernetesCluster=<cluster name>
+#  All instances
+#  One and only one SG for each instance should be tagged.
+#  - This will be modified as necessary to allow ELBs to access the instance
+#--------------------------------------------------------------------------------
+- name: "Get list of SGs in the {{ ENV_ID }} environment..."
+  ec2_group_facts:
+    filters:
+      group_name:         "{{ ec2_security_group }}"
+    region:               "{{ ec2_region }}"
+    ec2_access_key:       "{{ ec2_access_key }}"
+    ec2_secret_key:       "{{ ec2_secret_key }}"
+  register: sg
+
+- name: "Tag SG"
+  ec2_tag:
+    region:               "{{ ec2_region }}"
+    resource:             "{{ item.group_id }}"
+    tags:
+      environment:        "{{ ENV_ID }}"
+      KubernetesCluster:  "{{ K8S_CLUSTER_NAME }}"
+    aws_access_key:       "{{ ec2_access_key }}"
+    aws_secret_key:       "{{ ec2_secret_key }}"
+  with_items:             "{{ sg.security_groups }}"

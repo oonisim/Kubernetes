@@ -26,14 +26,3 @@ cluster:
         ip: {{ item.private_ip_address }}
         id: {{ item.id }}
 {% endfor %}
-
-#--------------------------------------------------------------------------------
-# DQE_HOSTS string for configuration-init file of the application.
-#--------------------------------------------------------------------------------
-{% set list = [] %}
-{% for item in ec2_instance_list.instances %}
-    {% if item.tags.type is equalto "dqe" %}
-        {% if list.append( item.tags.Name ) %} {% endif %}
-    {% endif %}
-{% endfor %}
-DQE_HOSTS="{{ list|join(",") }}"
