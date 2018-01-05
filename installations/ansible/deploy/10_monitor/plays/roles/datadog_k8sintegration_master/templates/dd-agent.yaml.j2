@@ -98,10 +98,10 @@ spec:
             mountPath:  /conf.d     # somehow it goes to /etc/dd-agent/conf.d
             #--------------------------------------------------------------------------------
             readOnly: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/bash", "-c", "/etc/init.d/datadog-agent restart"]
+        #lifecycle:
+        #  postStart:
+        #    exec:
+        #      command: ["/bin/bash", "-c", "sleep 10 && /etc/init.d/datadog-agent info -v"]
         livenessProbe:
           exec:
             command:

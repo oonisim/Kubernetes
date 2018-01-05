@@ -1,8 +1,9 @@
-- name: K8s configurations for master
+- name: "Application deployments..."
   hosts: masters
   any_errors_fatal: true
   become: yes
   become_user: "{{ K8S_ADMIN }}"
   roles:
-    - guestbook
-    - kuard
+#    - guestbook
+#    - kuard
+    - mysql

@@ -39,9 +39,6 @@
     kubectl get pods --all-namespaces
   ignore_errors: true
 
-- pause:
-    minutes: 1
-
 - name: "Clear {{ application_home }}"
   file:
     path:     "{{ application_home }}"
@@ -57,6 +54,9 @@
     group:    "{{ K8S_GROUP }}"
     mode:     "0750"
 
+#- name: "Git clone {{ application }} application"
+#  shell: |
+#    git clone {{ application_git_url }} {{ application_home }}
 
 - name: "Copy {{ application }}"
   template:
@@ -65,7 +65,6 @@
     owner:    "{{ K8S_ADMIN }}"
     mode:     0644
   with_items: "{{ apps }}"
-
 
 #--------------------------------------------------------------------------------
 # Deploy application
@@ -84,3 +83,46 @@
       sleep 1
     done
   with_items: "{{ apps }}"
+
+- name: "Port forward from {{ item.node_port }} of the host to {{ item.pod_port }} in pod"
+  shell: |
+    POD="$(kubectl get pod -n {{ item.namespace }} --no-headers --selector=app={{ item.name }} | head -n 1 | awk '{ print $1 }')"
+    echo ${POD}
+    nohup kubectl port-forward ${POD} {{ item.node_port }}:{{ item.pod_port }} &
+    echo $! > {{ item.name }}.pid
+  with_items: "{{ apps }}"
+
+#--------------------------------------------------------------------------------
+# Load sample data
+#--------------------------------------------------------------------------------
+- name: "Copy {{ application }} SQL files"
+  copy:
+    src:      "{{ item }}"
+    dest:     "{{ application_home }}/{{ item|basename }}"
+    owner:    "{{ K8S_ADMIN }}"
+    mode:     0644
+  with_fileglob:
+    - "{{ role_path }}/sqls/*"
+
+#- name: "Load data"
+#  expect:
+#    command: mysql -h $(kubectl get svc --selector=app=mysql --no-headers | awk '{ print $3 }') -u root -p < {{ item|basename }})
+#    responses:
+#      Enter password: "{{ mysql_password }}"
+#    chdir:    "{{ application_home }}"
+#  with_fileglob:
+#    - "{{ role_path }}/sqls/*"
+
+- name: "Load data"
+  shell: |
+    mysql -h $(kubectl get svc --selector=app=mysql --no-headers | awk '{ print $3 }') -u root -p'{{ mysql_password }}'  < {{ item|basename }}
+  args:
+    chdir:    "{{ application_home }}"
+  with_fileglob:
+    - "{{ role_path }}/sqls/*"
+
+
+
+# To access kuard:
+# ssh -i ~/.ssh/aws_maonishi_us-west-1pem.pem -L localhost:8080:127.0.0.1:8080 centos@50.18.71.232
+# http://localhost:8080
