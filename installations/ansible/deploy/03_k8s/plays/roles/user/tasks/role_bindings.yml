@@ -1,0 +1,24 @@
+#--------------------------------------------------------------------------------
+# Bind roles
+#--------------------------------------------------------------------------------
+- name: "Place role binding manifest"
+  template:
+    src:    "{{ role_path }}/templates/kube_role_bindings.yaml.j2"
+    dest:   "~{{ K8S_ADMIN }}/kube_role_bindings.{{ item.account }}.yml"
+    owner:  "{{ K8S_ADMIN }}"
+    group:  "{{ K8S_GROUP}}"
+    mode:   0640
+  with_items: "{{ k8s_users }}"
+
+- name: "Create role bindings"
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
+  shell: |
+    kubectl apply -f kube_role_bindings.{{ item.account }}.yml
+  with_items: "{{ k8s_users }}"
+  register: _result_role_bindings
+
+- fail:
+    msg: "{{ item.stderr }}"
+  when: item.stderr.find("error") != -1
+  with_items: "{{ _result_role_bindings.results }}"

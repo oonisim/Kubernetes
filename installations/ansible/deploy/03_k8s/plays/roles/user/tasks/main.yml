@@ -1,1 +1,2 @@
 - import_tasks: kubeconfig.yml
+- import_tasks: role_bindings.yml
