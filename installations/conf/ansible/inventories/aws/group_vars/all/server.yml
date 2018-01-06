@@ -35,7 +35,9 @@ K8S_CONFIG_HOME: "/etc/kubernetes"
 K8S_CONFIG_FILE: "{{ K8S_CONFIG_HOME}}/config"
 KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
 
-K8S_CA_HOME: "{{ K8S_CONFIG_HOME }}/pki"
+# K8S_CONFIG_HOME gets removed at the K8S installation cleanup.
+#K8S_CA_HOME: "{{ K8S_CONFIG_HOME }}/pki"
+K8S_CA_HOME: "/etc/pki/openssl"
 
 #--------------------------------------------------------------------------------
 # K8S installation packages
@@ -48,21 +50,32 @@ K8S_CA_HOME: "{{ K8S_CONFIG_HOME }}/pki"
 # See
 # - https://github.com/kubernetes/release/pull/109
 # - https://github.com/kubernetes/release/issues/97
+#
+# kubelet-1.9.1-0.x86_64.rpm is not signed
+# https://github.com/kubernetes/kubernetes/issues/57855
 #--------------------------------------------------------------------------------
 K8S_PACKAGES_PREREQUISITES:
+# kubelet-1.9.1-0.x86_64.rpm is not signed
+# https://github.com/kubernetes/kubernetes/issues/57855
+# Temporarily disable cni installation due to the issue.
 #  - kubernetes-cni-0.6.0-0.x86_64
-  - kubernetes-cni
+#  - kubernetes-cni
+  - tree
 
 K8S_PACKAGES_PREREQUISITES_REMOVE: "{{ K8S_PACKAGES_PREREQUISITES }}"
 #  - kubernetes-cni
 
+K8S_VERSION_186: 1.8.6-0
+K8S_VERSION_190: 1.9.0-0
+K8S_VERSION: "{{ K8S_VERSION_190 }}"
+
 K8S_PACKAGES:
-  - kubeadm
-  - kubelet
-  - kubectl
-#  - kubeadm-1.8.6-0.x86_64
-#  - kubectl-1.8.6-0.x86_64
-#  - kubelet-1.8.6-0.x86_64
+#  - kubeadm
+#  - kubelet
+#  - kubectl
+  - "kubeadm-{{ K8S_VERSION }}.x86_64"
+  - "kubectl-{{ K8S_VERSION }}.x86_64"
+  - "kubelet-{{ K8S_VERSION }}.x86_64"
   - flannel
   - docker
 
