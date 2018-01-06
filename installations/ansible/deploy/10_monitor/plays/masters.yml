@@ -17,3 +17,4 @@
   become_user: "{{ K8S_ADMIN }}"
   roles:
     - datadog_k8sintegration_master
+    - fluentd_elasticsearch

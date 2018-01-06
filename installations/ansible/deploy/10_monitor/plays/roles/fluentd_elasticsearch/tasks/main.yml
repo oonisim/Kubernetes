@@ -1,0 +1,22 @@
+#--------------------------------------------------------------------------------
+# Clean up previous intallation.
+#--------------------------------------------------------------------------------
+- name: "Delete fluentd-daemonset-elasticsearch"
+  shell: |
+    kubectl delete -f ~{{ K8S_ADMIN }}/fluentd-daemonset-elasticsearch.yaml
+    rm -f ~{{ K8S_ADMIN }}/fluentd-daemonset-elasticsearch.yaml
+  ignore_errors: true
+  
+#--------------------------------------------------------------------------------
+# Datadog K8S agent setups as daemonset
+#--------------------------------------------------------------------------------
+- name: "Place fluentd-daemonset-elasticsearch manifest."
+  template:
+    src: "{{ role_path }}/templates/fluentd-daemonset-elasticsearch.yaml.j2"
+    dest: "~{{ K8S_ADMIN }}/fluentd-daemonset-elasticsearch.yaml"
+    owner: "{{ K8S_ADMIN }}"
+    mode: 0644
+
+- name: "Deploy fluentd-daemonset-elasticsearch"
+  shell: |
+    kubectl create -f ~{{ K8S_ADMIN }}/fluentd-daemonset-elasticsearch.yaml

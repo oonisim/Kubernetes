@@ -1,0 +1,86 @@
+#--------------------------------------------------------------------------------
+# Delete previous installation and clear application_home.
+#--------------------------------------------------------------------------------
+
+- name: "Stop port forwarding to the application pod"
+  shell: |
+    cd {{ application_home }}
+    for f in $( ls *.pid ) ; do kill $( cat ${f} && rm ${f} ) ; done
+  ignore_errors: true
+
+#- name: "Check {{ application }} has been installed"
+#  shell: |
+#    kubectl get pod { item.name }} -n {{ item.namespace }}
+#  register: isAppInstalled
+#  ignore_errors: true
+#  with_items: "{{ apps }}"
+#
+#- debug:
+#    msg: "{{ isAppInstalled }}"
+
+- name: "Delete {{ application }} application"
+  shell: |
+    cd {{ application_home }}
+    for f in $( ls *.yaml ) ; do kubectl delete -f ${f} ; done
+  ignore_errors: true
+
+- name: "Wait {{ application }} application terminated"
+  shell: |
+    cd {{ application_home }}
+    while [ "$(kubectl get pod -n {{ item.namespace }} --no-headers | grep {{ item.name }} | awk '{ print $3 }')" == "Terminating" ]
+      do kubectl get pod -n {{ item.namespace }}
+      sleep 3
+    done
+  ignore_errors: true
+  with_items: "{{ apps }}"
+
+- name: "Check terminated for sure"
+  shell: |
+    kubectl get pods --all-namespaces
+  ignore_errors: true
+
+- pause:
+    minutes: 1
+
+- name: "Clear {{ application_home }}"
+  file:
+    path:     "{{ application_home }}"
+    state:    "absent"
+
+#--------------------------------------------------------------------------------
+# Provision application artefacts
+#--------------------------------------------------------------------------------
+- name: "Create {{ application_home }}"
+  file:
+    path:     "{{ application_home }}"
+    state:    "directory"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0750"
+
+
+- name: "Copy {{ application }}"
+  template:
+    src:      "{{ role_path }}/templates/{{ item.manifest }}"
+    dest:     "{{ application_home }}/{{ item.manifest }}"
+    owner:    "{{ K8S_ADMIN }}"
+    mode:     0644
+  with_items: "{{ apps }}"
+
+
+#--------------------------------------------------------------------------------
+# Deploy application
+#--------------------------------------------------------------------------------
+- name: "Deploy {{ application }} application"
+  shell: |
+    cd {{ application_home }}
+    kubectl apply -f {{ item.manifest }}
+  with_items: "{{ apps }}"
+
+- name: "Wait for {{ application }} ready"
+  shell: |
+    cd {{ application_home }}
+    while [ "$(kubectl get pod -n {{ item.namespace }} --no-headers --selector=app={{ item.name }} | head -n 1 | awk '{ print $3 }')" != "Running" ]
+      do kubectl get pod -n {{ item.namespace }} | tee -a {{ item.name }}.log
+      sleep 1
+    done
+  with_items: "{{ apps }}"
