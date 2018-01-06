@@ -1,0 +1,114 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+data:
+  mysql_user: "YWRtaW4K"
+  mysql_pass: "Mzk1MjgkdmRnN0pi"
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: mysql-sc
+  labels:
+    az: "{{ ec2_zone }}"
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  zones: "{{ ec2_zone }}"
+  #--------------------------------------------------------------------------------
+  # Volume Type
+  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html
+  # type: io1
+  # iopsPerGB: "10"
+  #--------------------------------------------------------------------------------
+  type: gp2
+  encrypted: "true"
+reclaimPolicy: Retain
+mountOptions:
+  - debug
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mysql-pvc
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - "ReadWriteOnce"
+  storageClassName: mysql-sc
+  # claim.Spec.Selector is not supported for dynamic provisioning on AWS
+  #selector:
+  #  matchLabels:
+  #    az: "us-west-1"
+---
+apiVersion: extensions/v1beta1
+kind: ReplicaSet
+metadata:
+  # https://hub.docker.com/_/mysql/
+  name: mysql-rs
+  # labels so that we can bind a Service to this Pod
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      name: mysql
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql
+          resources:
+            requests:
+              cpu: 1
+              memory: 1Gi
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql_pass
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-volume
+              # /var/lib/mysql is where MySQL stores its databases
+              mountPath: "/var/lib/mysql"
+          livenessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 180
+            timeoutSeconds: 5
+            periodSeconds: 30
+            failureThreshold: 3
+            successThreshold: 1
+          lifecycle:
+            postStart:
+              # To avoid mysql --initialize specified but the data directory has files in it.
+              exec:
+                command: ["/bin/bash", "-c", "rm -rf /var/lib/mysql/*"]
+      volumes:
+        - name: mysql-volume
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+  labels:
+    app: mysql
+spec:
+  ports:
+    - port: 3306
+      protocol: TCP
+  selector:
+    app: mysql

@@ -1,0 +1,11 @@
+application                     : "{{role_path|basename}}"
+application_home                : "~{{ K8S_ADMIN }}/apps/{{ application }}"
+
+apps:
+  - name:       "mysql"
+    namespace:  "default"
+    pod_port:   3306
+    node_port:  3306
+    manifest:   "mysql.yaml"
+
+mysql_password: "39528$vdg7Jb"
