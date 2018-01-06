@@ -1,0 +1,51 @@
+#--------------------------------------------------------------------------------
+# Create {{ K8S_CONFIG_HOME }} directory if it doesn't exist
+#--------------------------------------------------------------------------------
+- name: "Create {{ K8S_CONFIG_HOME }} directory if it doesn't exist"
+  file:
+    path:   "{{ K8S_CONFIG_HOME }}"
+    state:  "directory"
+    group:  "{{ K8S_GROUP}}"
+    mode:   0750
+
+- name: "Place kubeadm configuration file"
+  template:
+    src:    "{{ role_path }}/templates/kubeadm_config.yaml.j2"
+    dest:   "{{ K8S_CONFIG_HOME }}/kubeadm_config.yaml"
+    group:  "{{ K8S_GROUP}}"
+    mode:   0640
+
+#--------------------------------------------------------------------------------
+# Setup cluster
+#--------------------------------------------------------------------------------
+- name: "Kubeadmn init"
+# https://github.com/kubernetes/kubernetes/issues/57718
+#  shell: |
+#    kubeadm init --pod-network-cidr={{ K8S_SERVICE_ADDRESSES }} --apiserver-advertise-address={{ K8S_ADVERTISE_ADDRESS }}
+  shell: |
+    kubeadm init --config {{ K8S_CONFIG_HOME }}/kubeadm_config.yaml
+
+#--------------------------------------------------------------------------------
+# Token and CA Hash for workers
+#--------------------------------------------------------------------------------
+- name: "Cluster token"
+  shell: kubeadm token list | cut -d ' ' -f1 | sed -n '2p'
+  register: K8S_TOKEN
+
+- name: "CA Hash"
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: K8S_MASTER_CA_HASH
+
+- name: "Add K8S Token and Hash to dummy host"
+  add_host:
+    name:   "K8S_TOKEN_HOLDER"
+    token:  "{{ K8S_TOKEN.stdout }}"
+    hash:   "{{ K8S_MASTER_CA_HASH.stdout }}"
+
+- name:
+  debug:
+    msg: "[Master] K8S_TOKEN_HOLDER K8S token is {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+- name:
+  debug:
+    msg: "[Master] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"

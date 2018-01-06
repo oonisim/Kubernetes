@@ -1,0 +1,45 @@
+#--------------------------------------------------------------------------------
+# Role devops-role binding.
+#--------------------------------------------------------------------------------
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: devops-role
+rules:
+  - apiGroups: ["extensions", "apps"]
+    resources:
+      - deployments
+      - replicasets
+      - ingresses
+    verbs: ["*"]
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - events
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - pods
+      - services
+      - secrets
+      - replicationcontrollers
+      - persistentvolumeclaims
+      - jobs
+      - cronjobs
+    verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: devops-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: devops-role
+subjects:
+  - kind: User
+    name: {{ item.kubeuser }}
+    #name: system:serviceaccount:cd:cd-agent
+    apiGroup: rbac.authorization.k8s.io

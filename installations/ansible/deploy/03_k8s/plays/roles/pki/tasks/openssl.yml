@@ -1,0 +1,54 @@
+#--------------------------------------------------------------------------------
+# Change group of the K8S configurations
+#--------------------------------------------------------------------------------
+- name: "Assure {{ K8S_CA_HOME }} directory and its permissions."
+  file:
+    path:     "{{ K8S_CA_HOME }}"
+    state:    "directory"
+    owner:    "{{ K8S_ADMIN }}"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0750"
+    recurse:  true
+
+- name: "Assure {{ K8S_CA_HOME }}/newcerts directory and its permissions."
+  file:
+    path:     "{{ K8S_CA_HOME }}/newcerts"
+    state:    "directory"
+    owner:    "{{ K8S_ADMIN }}"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0750"
+    recurse:  true
+
+- name: "Assure {{ K8S_CA_HOME }}/index.txt mandatory file and its permissions."
+  file:
+    path:     "{{ K8S_CA_HOME }}/index.txt"
+    state:    "touch"
+    owner:    "{{ K8S_ADMIN }}"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0640"
+
+- name: "Assure {{ K8S_CA_HOME }}/index.txt.attr mandatory file and its permissions."
+  file:
+    path:     "{{ K8S_CA_HOME }}/index.txt.attr"
+    state:    "touch"
+    owner:    "{{ K8S_ADMIN }}"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0640"
+
+- name: "Assure {{ K8S_CA_HOME }}/ca.srl mandatory file and its permissions."
+  copy:
+    dest:     "{{ K8S_CA_HOME }}/ca.srl"
+    content:  "BAD6A760AC4081FC"
+    force:    "no"
+    owner:    "{{ K8S_ADMIN }}"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0640"
+
+- name: "Place openssl configuration file"
+  template:
+    src:    "{{ role_path }}/templates/openssl.conf.j2"
+    dest:   "{{ K8S_CA_HOME }}/openssl.conf"
+    owner:  "{{ K8S_ADMIN }}"
+    group:  "{{ K8S_GROUP}}"
+    mode:   0640
+

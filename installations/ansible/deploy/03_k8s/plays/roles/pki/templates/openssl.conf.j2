@@ -1,0 +1,61 @@
+[default]
+dir = {{ K8S_CA_HOME }}
+
+#--------------------------------------------------------------------------------
+# ca command
+#--------------------------------------------------------------------------------
+[ca]
+default_ca              = ca_section
+
+[ca_section]
+certificate             = $dir/ca.crt
+private_key             = $dir/ca.key
+database                = $dir/index.txt    # Mandatory database index file.
+new_certs_dir           = $dir/newcerts     # Mandatorydefault place for new certs.
+default_days            = 1095              # 3 years
+default_md              = default           # Mandatory hash function. Use public key default MD
+serial                  = $dir/ca.srl       # Mandatory. Do NOT initialize this with a number! instead, use the -create_serial option
+policy                  = policy_match      # Mandatory
+
+[ssl_client]
+basicConstraints        = CA:FALSE
+keyUsage                = digitalSignature, keyEncipherment
+extendedKeyUsage        = clientAuth
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid:always,issuer:always
+basicConstraints = CA:true
+
+[ policy_match ]
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+#organizationName        = match            # If match is specified, CA cert needs to have O as well.
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+#--------------------------------------------------------------------------------
+# req command
+#--------------------------------------------------------------------------------
+[ req ]
+default_bits            = 2048
+attributes              = req_attributes
+distinguished_name      = req_distinguished_name
+
+[ req_distinguished_name ]
+countryName                     = Country Name (2 letter code)
+countryName_default             = AU
+countryName_min                 = 2
+countryName_max                 = 2
+
+stateOrProvinceName             = State or Province Name (full name)
+stateOrProvinceName_default     = New South Wales
+
+localityName                    = Locality Name (eg, city)
+localityName_default            = Sydney
+
+[ req_attributes ]
+# Define extra attributes for our requests such as Challenge Passwords. I keep this section empty, but it must exist!

@@ -5,8 +5,10 @@
   become_user: root
   become_method: sudo
   roles:
+    - pki
     - common
     - master
+    - user
 
 - name: K8s dashboard
   hosts: masters

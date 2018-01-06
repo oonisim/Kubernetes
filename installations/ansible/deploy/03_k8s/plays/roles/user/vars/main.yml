@@ -1,0 +1,6 @@
+k8s_users:
+  - account:      "centos"
+    kubeuser:     "ec2"
+    cert_subject: "/CN=ec2/O=kube-admin/O=users"
+    cluster:      "kubernetes"
+    namespace:    "kube-system"
