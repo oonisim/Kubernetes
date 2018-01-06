@@ -36,8 +36,7 @@ K8S_CONFIG_FILE: "{{ K8S_CONFIG_HOME}}/config"
 KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
 
 # K8S_CONFIG_HOME gets removed at the K8S installation cleanup.
-#K8S_CA_HOME: "{{ K8S_CONFIG_HOME }}/pki"
-K8S_CA_HOME: "/etc/pki/openssl"
+K8S_CA_HOME: "{{ K8S_CONFIG_HOME }}/pki"
 
 #--------------------------------------------------------------------------------
 # K8S installation packages
