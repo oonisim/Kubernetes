@@ -2,7 +2,7 @@ endpoints:
   apiserver:
     protocol: https
     host: "{{ ansible_fqdn }}"
-    port: "{{ K8S_API_SERCURE_PORT }}"
+    port: "{{ K8S_API_PORT }}"
     path: "healthz"
     http_code: 200
     content_match: "^ok$"
