@@ -57,3 +57,4 @@ VALUES
     (3,7,2);
 
 SELECT * FROM recipes ORDER BY recipe_id;
+Commit;

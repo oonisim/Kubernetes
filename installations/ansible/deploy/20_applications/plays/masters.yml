@@ -7,4 +7,5 @@
  #   - guestbook
  #   - kuard
  #   - mysql
-    - mongo
+ #   - mongo
+    - mysql_statefulset

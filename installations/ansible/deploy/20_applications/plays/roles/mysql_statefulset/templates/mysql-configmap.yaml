@@ -12,5 +12,6 @@ data:
   slave.cnf: |
     # Apply this config only on slaves.
     [mysqld]
-    super-read-only
+#    super-read-only
+    read-only
 

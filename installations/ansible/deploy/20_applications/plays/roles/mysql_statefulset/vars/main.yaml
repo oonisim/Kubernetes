@@ -7,5 +7,6 @@ apps:
     pod_port:   3306
     node_port:  3306
     manifest:   "mysql.yaml"
+    selector:   "app=mysql"
 
 mysql_password: "39528$vdg7Jb"

@@ -1,7 +1,6 @@
 #--------------------------------------------------------------------------------
 # Delete previous installation and clear application_home.
 #--------------------------------------------------------------------------------
-
 - name: "Stop port forwarding to the application pod"
   shell: |
     cd {{ application_home }}
@@ -20,14 +19,15 @@
 
 - name: "Delete {{ application }} application"
   shell: |
-    cd {{ application_home }}
     for f in $( ls *.yaml ) ; do kubectl delete -f ${f} ; done
+  args:
+    chdir: "{{ application_home }}"
   ignore_errors: true
 
 - name: "Wait {{ application }} application terminated"
   shell: |
     cd {{ application_home }}
-    while [ "$(kubectl get pod -n {{ item.namespace }} --no-headers | grep {{ item.name }} | awk '{ print $3 }')" == "Terminating" ]
+    while kubectl get pod -n {{ item.namespace }} --no-headers --selector={{ item.selector }} | grep {{ item.name }} | awk '{ print $3 }' | grep "Terminating"
       do kubectl get pod -n {{ item.namespace }}
       sleep 3
     done
@@ -78,18 +78,10 @@
 - name: "Wait for {{ application }} ready"
   shell: |
     cd {{ application_home }}
-    while [ "$(kubectl get pod -n {{ item.namespace }} --no-headers --selector=app={{ item.name }} | head -n 1 | awk '{ print $3 }')" != "Running" ]
-      do kubectl get pod -n {{ item.namespace }} | tee -a {{ item.name }}.log
-      sleep 1
+    while kubectl get pod -n {{ item.namespace }} --no-headers --selector={{ item.selector }} | grep {{ item.name }} | awk '{ print $3 }' | grep -v "Running"
+      do kubectl get pod -n {{ item.namespace }} --selector={{ item.selector }} | tee -a {{ item.name }}.log
+      sleep 5
     done
-  with_items: "{{ apps }}"
-
-- name: "Port forward from {{ item.node_port }} of the host to {{ item.pod_port }} in pod"
-  shell: |
-    POD="$(kubectl get pod -n {{ item.namespace }} --no-headers --selector=app={{ item.name }} | head -n 1 | awk '{ print $1 }')"
-    echo ${POD}
-    nohup kubectl port-forward ${POD} {{ item.node_port }}:{{ item.pod_port }} &
-    echo $! > {{ item.name }}.pid
   with_items: "{{ apps }}"
 
 #--------------------------------------------------------------------------------
@@ -104,18 +96,9 @@
   with_fileglob:
     - "{{ role_path }}/sqls/*"
 
-#- name: "Load data"
-#  expect:
-#    command: mysql -h $(kubectl get svc --selector=app=mysql --no-headers | awk '{ print $3 }') -u root -p < {{ item|basename }})
-#    responses:
-#      Enter password: "{{ mysql_password }}"
-#    chdir:    "{{ application_home }}"
-#  with_fileglob:
-#    - "{{ role_path }}/sqls/*"
-
 - name: "Load data"
   shell: |
-    mysql -h $(kubectl get svc --selector=app=mysql --no-headers | awk '{ print $3 }') -u root -p'{{ mysql_password }}'  < {{ item|basename }}
+    mysql -h $(kubectl get svc --selector=app=mysql --no-headers | awk '{ print $3 }') -u root  < {{ item|basename }}
   args:
     chdir:    "{{ application_home }}"
   with_fileglob:
