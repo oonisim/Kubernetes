@@ -57,8 +57,8 @@ K8S_PACKAGES_PREREQUISITES:
 # kubelet-1.9.1-0.x86_64.rpm is not signed
 # https://github.com/kubernetes/kubernetes/issues/57855
 # Temporarily disable cni installation due to the issue.
-  - kubernetes-cni-0.6.0-0.x86_64
-#  - kubernetes-cni
+#  - kubernetes-cni-0.6.0-0.x86_64
+  - kubernetes-cni
 
 K8S_PACKAGES_PREREQUISITES_REMOVE: "{{ K8S_PACKAGES_PREREQUISITES }}"
 #  - kubernetes-cni
