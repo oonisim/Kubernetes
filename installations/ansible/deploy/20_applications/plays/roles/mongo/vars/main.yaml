@@ -1,0 +1,8 @@
+application                     : "{{role_path|basename}}"
+application_home                : "~{{ K8S_ADMIN }}/apps/{{ application }}"
+apps:
+  - name:       "mongo"
+    namespace:  "default"
+    pod_port:   27017
+    node_port:  27017
+    manifest:   "mongo.yaml"

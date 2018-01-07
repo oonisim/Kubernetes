@@ -1,0 +1,66 @@
+#--------------------------------------------------------------------------------
+# Delete previous installation and clear application_home.
+#--------------------------------------------------------------------------------
+- name: "Stop port forwarding to the application pod"
+  shell: |
+    cd {{ application_home }}
+    for f in $( ls *.pid ) ; do kill $( cat ${f} && rm ${f} ) ; done
+  ignore_errors: true
+
+#- name: "Check {{ application }} has been installed"
+#  shell: |
+#    kubectl get pod { item.name }} -n {{ item.namespace }}
+#  register: isAppInstalled
+#  ignore_errors: true
+#  with_items: "{{ apps }}"
+#
+#- debug:
+#    msg: "{{ isAppInstalled }}"
+
+- name: "Delete {{ application }} application"
+  shell: |
+    cd {{ application_home }}
+    kubectl delete -f {{ item.manifest }}
+  ignore_errors: true
+  with_items: "{{ apps }}"
+
+- name: "Clear {{ application_home }}"
+  file:
+    path:     "{{ application_home }}"
+    state:    "absent"
+
+#--------------------------------------------------------------------------------
+# Provision application artefacts
+#--------------------------------------------------------------------------------
+- name: "Create {{ application_home }}"
+  file:
+    path:     "{{ application_home }}"
+    state:    "directory"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0750"
+
+- name: "Copy {{ application }}"
+  template:
+    src:      "{{ role_path }}/templates/{{ item.manifest }}"
+    dest:     "{{ application_home }}/{{ item.manifest }}"
+    owner:    "{{ K8S_ADMIN }}"
+    mode:     0644
+  with_items: "{{ apps }}"
+
+#--------------------------------------------------------------------------------
+# Deploy application
+#--------------------------------------------------------------------------------
+- name: "Deploy {{ application }} application"
+  shell: |
+    cd {{ application_home }}
+    kubectl apply -f {{ item.manifest }}
+  with_items: "{{ apps }}"
+
+- name: "Port forward from {{ item.node_port }} of the host to {{ item.pod_port }} in pod"
+  shell: |
+    POD="$(kubectl get pod -n {{ item.namespace }} --no-headers --selector=app={{ item.name }} | head -n 1 | awk '{ print $1 }')"
+    echo ${POD}
+    nohup kubectl port-forward ${POD} {{ item.node_port }}:{{ item.pod_port }} &
+    echo $! > {{ item.name }}.pid
+  with_items: "{{ apps }}"
+
