@@ -93,11 +93,11 @@ spec:
               cpu: 100m
               memory: 200Mi
           volumeMounts:
-          - name: varlog
-            mountPath: /var/log
-          - name: varlibdockercontainers
-            mountPath: /var/lib/docker/containers
-            readOnly: true
+            - name: varlog
+              mountPath: /var/log
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
       terminationGracePeriodSeconds: 30
       volumes:
         - name: varlog

@@ -21,8 +21,9 @@
 - name: "Delete {{ application }} application"
   shell: |
     cd {{ application_home }}
-    for f in $( ls *.yaml ) ; do kubectl delete -f ${f} ; done
+    kubectl delete -f {{ item.manifest }}
   ignore_errors: true
+  with_items: "{{ apps }}"
 
 - name: "Wait {{ application }} application terminated"
   shell: |
