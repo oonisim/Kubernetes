@@ -11,15 +11,18 @@ data:
   kubernetes-config: |
     init_config:
     instances:
-      - port: 4194
+      - port: {{ CADVISOR_PORT }}
         enabled_gauges:
         - cpu.*
         - filesystem.*
         - memory.*
         - network.tcp6.*
-        apiserver_client_crt: /etc/secret/apiserver-kubelet-client.crt
-        apiserver_client_key: /etc/secret/apiserver-kubelet-client.key
-        apiserver_ca_cert:    /etc/secret/ca.crt
+        apiserver_client_crt: {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ APISERVER_CLIENT_CRT|basename }}
+        apiserver_client_key: {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ APISERVER_CLIENT_KEY|basename }}
+        apiserver_ca_cert:    {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ APISERVER_CA_CRT|basename }}
+        kubelet_client_crt:   {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ KUBELET_CLIENT_CRT|basename }}
+        kubelet_client_key:   {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ KUBELET_CLIENT_KEY|basename }}
+        kubelet_cert:         {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ KUBELET_CA_CRT|basename }}
     tags:
       - dd-agent:true
 
@@ -49,7 +52,7 @@ spec:
             protocol: UDP
         env:
           - name: TAGS
-            value: "{{ datadog_tags }}"
+            value: "{{ DATADOG_TAGS }}"
           - name: API_KEY
             value: "{{ datadog_api_key }}"
           - name: KUBERNETES
@@ -85,7 +88,7 @@ spec:
           # Mount API server client certificate and CA files as secrets
           #--------------------------------------------------------------------------------
           - name: k8s-certs
-            mountPath:  /etc/secret
+            mountPath:  {{ DD_AGENT_CERT_MOUNT_PATH }}
             readOnly:   true
           #--------------------------------------------------------------------------------
           # Mount API server client certificate and CA files as secrets

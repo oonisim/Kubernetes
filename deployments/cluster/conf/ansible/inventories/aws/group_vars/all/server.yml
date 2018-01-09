@@ -33,10 +33,16 @@ ETCD_CONFIG_HOME: "/etc/kubernetes"
 #--------------------------------------------------------------------------------
 K8S_CONFIG_HOME: "/etc/kubernetes"
 K8S_CONFIG_FILE: "{{ K8S_CONFIG_HOME}}/config"
-KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
-
 # K8S_CONFIG_HOME gets removed at the K8S installation cleanup.
 K8S_CA_HOME: "{{ K8S_CONFIG_HOME }}/pki"
+KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+
+
+#--------------------------------------------------------------------------------
+# kubectl config
+#--------------------------------------------------------------------------------
+KUBECONFIG_ADMIN: "/etc/kubernetes/admin.conf"
+
 
 #--------------------------------------------------------------------------------
 # K8S installation packages
@@ -98,3 +104,18 @@ K8S_NETWORK_SERVICES:
   - flanneld
 
 KUBEPROXY_PORT: 8001
+
+
+#--------------------------------------------------------------------------------
+# K8S Certificates for client certificate authentications
+#--------------------------------------------------------------------------------
+APISERVER_CLIENT_CRT: /etc/kubernetes/pki/apiserver-kubelet-client.crt
+APISERVER_CLIENT_KEY: /etc/kubernetes/pki/apiserver-kubelet-client.key
+APISERVER_CA_CRT:     /etc/kubernetes/pki/ca.crt
+KUBELET_CLIENT_CRT:   /etc/kubernetes/pki/apiserver-kubelet-client.crt
+KUBELET_CLIENT_KEY:   /etc/kubernetes/pki/apiserver-kubelet-client.key
+KUBELET_CA_CRT:       /var/lib/kubelet/pki/kubelet.crt
+ETCD_CLIENT_CRT:      /etc/kubernetes/pki/apiserver-kubelet-client.crt
+ETCD_CLIENT_KEY:      /etc/kubernetes/pki/apiserver-kubelet-client.key
+ETCD_CA_CRT:          /var/lib/kubelet/pki/ca.crt
+

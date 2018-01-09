@@ -6,9 +6,9 @@ endpoints:
     path: "healthz"
     http_code: 200
     content_match: "^ok$"
-    ca_certs:    /etc/kubernetes/pki/ca.crt
-    client_cert: /etc/kubernetes/pki/apiserver-kubelet-client.crt
-    client_key:  /etc/kubernetes/pki/apiserver-kubelet-client.key
+    ca_certs:    "{{ APISERVER_CA_CRT }}"
+    client_cert: "{{ APISERVER_CLIENT_CRT }}"
+    client_key:  "{{ APISERVER_CLIENT_KEY }}"
   etcd:
     protocol: http
     # ETCD (K8S 1.9) binds on localhost I/F only.
@@ -17,9 +17,9 @@ endpoints:
     path: "health"
     http_code: 200
     content_match: '^\{"health": "true"\}$'
-    ca_certs:    na
-    client_cert: na
-    client_key:  na
+    ca_certs:    "{{ ETCD_CA_CRT }}"
+    client_cert: "{{ ETCD_CLIENT_CRT }}"
+    client_key:  "{{ ETCD_CLIENT_KEY }}"
   kubelet:
     protocol: https
     host: "{{ ansible_fqdn }}"
@@ -27,9 +27,9 @@ endpoints:
     path: "healthz"
     http_code: 200
     content_match: '^ok$'
-    ca_certs:    /var/lib/kubelet/pki/kubelet.crt
-    client_cert: /etc/kubernetes/pki/apiserver-kubelet-client.crt
-    client_key:  /etc/kubernetes/pki/apiserver-kubelet-client.key
+    ca_certs:    "{{ KUBELET_CA_CRT }}"
+    client_cert: "{{ KUBELET_CLIENT_CRT }}"
+    client_key:  "{{ KUBELET_CLIENT_KEY }}"
 
 #--------------------------------------------------------------------------------
 # Does not work with K8S OOB as the CA cert is auto-generated at each node by kubelet.

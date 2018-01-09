@@ -1,0 +1,27 @@
+#--------------------------------------------------------------------------------
+# K8S REST API response checks.
+#--------------------------------------------------------------------------------
+- name: "Place dd-agent http_check manifest for K8S services"
+  copy:
+    src: "{{ role_path }}/files/manifests/"
+    dest: "{{ DATADOG_MANIFEST_HOME }}/{{ role_path|basename }}"
+    owner: "dd-agent"
+    group: "dd-agent"
+    mode: 0770
+
+- name: "Delete kubestate metrics if exists"
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
+  shell: |
+    kubectl delete -f {{ role_path|basename }}
+  args:
+    chdir: "{{ DATADOG_MANIFEST_HOME }}"
+  ignore_errors: true
+
+- name: "Deploy kubestate metrics"
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
+  shell: |
+    kubectl apply -f {{ role_path|basename }}
+  args:
+    chdir: "{{ DATADOG_MANIFEST_HOME }}"

@@ -18,7 +18,7 @@
 
 - name: "K8S admin user configuration"
   shell: |
-    cp -i /etc/kubernetes/admin.conf ~{{ K8S_ADMIN }}/.kube/config
+    cp -i {{ KUBECONFIG_ADMIN }} ~{{ K8S_ADMIN }}/.kube/config
   args:
     executable: /bin/bash
 
@@ -33,7 +33,7 @@
 #--------------------------------------------------------------------------------
 # Allow pods on master.
 #--------------------------------------------------------------------------------
-- name: "Taint to run pods on master"
+- name: "Un-taint to run pods on master"
   shell: |
     kubectl taint nodes --all node-role.kubernetes.io/master-
   args:

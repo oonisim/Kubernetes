@@ -6,15 +6,9 @@
   become_user: root
   become_method: sudo
   roles:
+    - kube_state_metrics
     - datadog_installation
     - datadog_k8sintegration_common
-    - datadog_check_k8s
-
-- name: K8s configurations for master
-  hosts: masters
-  any_errors_fatal: true
-  become: yes
-  become_user: "{{ K8S_ADMIN }}"
-  roles:
     - datadog_k8sintegration_master
-    - fluentd_elasticsearch
+    - datadog_check_k8s
+#    - fluentd_elasticsearch

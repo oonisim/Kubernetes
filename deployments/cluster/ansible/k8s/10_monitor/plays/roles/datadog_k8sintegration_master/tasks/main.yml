@@ -1,18 +1,19 @@
+- name: "Adding {{ K8S_ADMIN }} to dd-agent group"
+  user:
+    name:   "{{ item }}"
+    groups: "dd-agent"
+    append: "yes"                 # useradd -aG
+  with_items:
+     - "{{ K8S_ADMIN }}"
+
 #--------------------------------------------------------------------------------
 # Clean up previous intallation.
 #--------------------------------------------------------------------------------
-- name: "Delete dd-agent."
-  shell: |
-    stat -f ~{{ K8S_ADMIN }}/dd-agent.yaml && kubectl delete -f ~{{ K8S_ADMIN }}/dd-agent.yaml
-    rm -f ~{{ K8S_ADMIN }}/dd-agent.yaml
-  ignore_errors: true
-
 - name: "Delete secrets for api server client certifiate and key"
-  shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
-    kubectl get secret k8s-certs && kubectl delete secret k8s-certs
   become: true
-  become_user: root
+  become_user: "{{ K8S_ADMIN }}"
+  shell: |
+    kubectl get secret k8s-certs && kubectl delete secret k8s-certs
   ignore_errors: true
 
 #--------------------------------------------------------------------------------
@@ -20,24 +21,38 @@
 #--------------------------------------------------------------------------------
 - name: "Create secrets for api server client certifiate and key"
   shell: >
-    KUBECONFIG=/etc/kubernetes/admin.conf
+    KUBECONFIG={{ KUBECONFIG_ADMIN }}
     kubectl create secret generic k8s-certs
-    --from-file=/etc/kubernetes/pki/apiserver-kubelet-client.crt
-    --from-file=/etc/kubernetes/pki/apiserver-kubelet-client.key
-    --from-file=/etc/kubernetes/pki/ca.crt
+    --from-file={{ APISERVER_CLIENT_CRT }}
+    --from-file={{ APISERVER_CLIENT_KEY }}
+    --from-file={{ APISERVER_CA_CRT }}
+    --from-file={{ KUBELET_CA_CRT }}
+#    --from-file={{ KUBELET_CLIENT_CRT }}
+#    --from-file={{ KUBELET_CLIENT_KEY }}
+#    --from-file={{ ETCD_CLIENT_CRT }}
+#    --from-file={{ ETCD_CLIENT_KEY }}
+#    --from-file={{ ETCD_CA_CRT }}
   become: true
   become_user: root
-
 
 #--------------------------------------------------------------------------------
 # Datadog K8S agent setups as daemonset
 #--------------------------------------------------------------------------------
+- name: "mkdir {{ DATADOG_MANIFEST_HOME }} if not exist"
+  file:
+    path:   "{{ DATADOG_MANIFEST_HOME }}"
+    state:  "directory"
+    owner:  "dd-agent"
+    group:  "dd-agent"
+    mode:   0770
+
 - name: "Place dd-agent daemonset manifest."
   template:
-    src: "{{ role_path }}/templates/dd-agent.yaml.j2"
-    dest: "~{{ K8S_ADMIN }}/dd-agent.yaml"
-    owner: "{{ K8S_ADMIN }}"
-    mode: 0644
+    src:    "{{ role_path }}/templates/dd-agent.yaml"
+    dest:   "{{ DATADOG_MANIFEST_HOME }}/dd-agent.yaml"
+    owner:  "dd-agent"
+    group:  "dd-agent"
+    mode:   0660
 
 #- name: "Check if dd-agent has been installed."
 #  shell: |
@@ -50,59 +65,45 @@
 #    kubectl delete daemonset dd-agent
 #  when: isDDAgentRunning.rc == 0
 
-- name: "Deploy dd-agent."
+- name: "Delete dd-agent if exists"
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
   shell: |
-    kubectl create -f ~{{ K8S_ADMIN }}/dd-agent.yaml
-
-#--------------------------------------------------------------------------------
-# kube-state-metrcs
-# https://github.com/kubernetes/kube-state-metrics
-# No need to build the docker image. It is already in the docker registry.
-# kubectl apply -f kubernetes can be repeately applicable with no error.
-#--------------------------------------------------------------------------------
-- name: "DD agent leader election for kube-state-mertic event collection"
-  template:
-    src: "{{ role_path }}/templates/dd_leader_election.yaml.j2"
-    dest: "~{{ K8S_ADMIN }}/dd_leader_election.yaml"
-    owner: "{{ K8S_ADMIN }}"
-    group: "{{ K8S_GROUP }}"
-    mode: 0660
-
-- name: "Check if datadog cluster role exists"
-  shell: |
-    kubectl get ClusterRole datadog
-  register: _existsDDClusterRole
+    kubectl delete -f {{ DATADOG_MANIFEST_HOME }}/dd-agent.yaml
   ignore_errors: true
 
-- name: "Deploy datadog cluster role"
+- name: "Deploy dd-agent."
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
   shell: |
-    kubectl create -f ~{{ K8S_ADMIN }}/dd_leader_election.yaml
-  when: _existsDDClusterRole.rc != 0
+    kubectl create -f {{ DATADOG_MANIFEST_HOME }}/dd-agent.yaml
+
+- name: "DD agent leader election for kube-state-mertic event collection"
+  template:
+    src:    "{{ role_path }}/templates/dd_rbac.yaml"
+    dest:   "{{ DATADOG_MANIFEST_HOME }}/dd-rbac.yaml"
+#    owner:  "{{ K8S_ADMIN }}"
+#    group:  "{{ K8S_GROUP }}"
+    owner:  "dd-agent"
+    group:  "dd-agent"
+    mode:   0660
+
+- name: "Deploy datadog cluster role"
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
+  shell: |
+    kubectl delete -f {{ DATADOG_MANIFEST_HOME }}/dd-rbac.yaml
+  ignore_errors: true
 
 - name: "Update datadog cluster role"
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
   shell: |
-    kubectl apply -f ~{{ K8S_ADMIN }}/dd_leader_election.yaml
-  when: _existsDDClusterRole.rc == 0
+    kubectl apply -f {{ DATADOG_MANIFEST_HOME }}/dd-rbac.yaml
 
-- name: "Deploy kube-state-metrics"
-  shell: |
-    cd ~{{ K8S_ADMIN }}
-    go get k8s.io/kube-state-metrics
-    cd go/src/k8s.io/kube-state-metrics
-    kubectl apply -f kubernetes
-
-
-#--------------------------------------------------------------------------------
-# Start kube proxy on master
-#--------------------------------------------------------------------------------
-#- name: "Check kube proxy"
+#- name: "Deploy kube-state-metrics"
 #  shell: |
-#    netstat -tnlp | grep {{ KUBEPROXY_PORT }}
-#  register: isKubeProxyRunning
-#  ignore_errors: true
-
-# export KUBECONFIG=/etc/kubernetes/admin.conf is MUST
-#- name: "Start kube proxy"
-#  shell: |
-#    nohup kubectl proxy --port={{ KUBEPROXY_PORT }} --address={{ K8S_MASTER_NODE_IP }} --accept-hosts='{{ KUBEPROXY_ACCEPT_HOSTS }}'&
-#  when: isKubeProxyRunning.rc != 0
+#    cd ~{{ K8S_ADMIN }}
+#    go get k8s.io/kube-state-metrics
+#    cd go/src/k8s.io/kube-state-metrics
+#    kubectl apply -f kubernetes

@@ -22,8 +22,8 @@ ARGS=$@
 
 . ${PLAY_DIR}/../scripts/_utility.sh
 
-CONF_DIR=$(_locate ${DIR} '/' 'installations/conf')
-TOOL_DIR=$(_locate ${DIR} '/' 'installations/tools')
+CONF_DIR=$(_locate ${DIR} '/' 'cluster/conf')
+TOOL_DIR=$(_locate ${DIR} '/' 'cluster/tools')
 PLAYER=$(_locate ${DIR} '/' 'player.sh')
 
 echo "PLAY_DIR=[${PLAY_DIR}]"
