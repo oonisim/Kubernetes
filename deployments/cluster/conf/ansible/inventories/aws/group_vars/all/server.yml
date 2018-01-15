@@ -112,9 +112,11 @@ KUBEPROXY_PORT: 8001
 APISERVER_CLIENT_CRT: /etc/kubernetes/pki/apiserver-kubelet-client.crt
 APISERVER_CLIENT_KEY: /etc/kubernetes/pki/apiserver-kubelet-client.key
 APISERVER_CA_CRT:     /etc/kubernetes/pki/ca.crt
+
 KUBELET_CLIENT_CRT:   /etc/kubernetes/pki/apiserver-kubelet-client.crt
 KUBELET_CLIENT_KEY:   /etc/kubernetes/pki/apiserver-kubelet-client.key
 KUBELET_CA_CRT:       /var/lib/kubelet/pki/kubelet.crt
+
 ETCD_CLIENT_CRT:      /etc/kubernetes/pki/apiserver-kubelet-client.crt
 ETCD_CLIENT_KEY:      /etc/kubernetes/pki/apiserver-kubelet-client.key
 ETCD_CA_CRT:          /var/lib/kubelet/pki/ca.crt

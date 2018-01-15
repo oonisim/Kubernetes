@@ -42,6 +42,8 @@ spec:
         app: dd-agent
       name: dd-agent
     spec:
+      nodeSelector:
+#        node_type: mule-non-prod
       containers:
       - image: datadog/docker-dd-agent:latest
         imagePullPolicy: Always
@@ -54,7 +56,7 @@ spec:
           - name: TAGS
             value: "{{ DATADOG_TAGS }}"
           - name: API_KEY
-            value: "{{ datadog_api_key }}"
+            value: "{{ DATADOG_API_KEY }}"
           - name: KUBERNETES
             value: "yes"
           - name: SD_BACKEND

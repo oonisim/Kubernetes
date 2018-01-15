@@ -2,4 +2,3 @@ DATADOG_TAGS: "environment:masa,project:test"
 DATADOG_AGENT_HOME: /etc/dd-agent
 DATADOG_MANIFEST_HOME: "{{DATADOG_AGENT_HOME }}/manifests"
 DD_AGENT_CERT_MOUNT_PATH: /etc/certs
-

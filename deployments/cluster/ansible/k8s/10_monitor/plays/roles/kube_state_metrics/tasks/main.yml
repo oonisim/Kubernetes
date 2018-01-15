@@ -1,7 +1,7 @@
 #--------------------------------------------------------------------------------
 # K8S REST API response checks.
 #--------------------------------------------------------------------------------
-- name: "Place dd-agent http_check manifest for K8S services"
+- name: "Place kubestate metrics manifests for K8S services"
   copy:
     src: "{{ role_path }}/files/manifests/"
     dest: "{{ DATADOG_MANIFEST_HOME }}/{{ role_path|basename }}"

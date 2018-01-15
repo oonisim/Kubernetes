@@ -1,7 +1,7 @@
 kind: MasterConfiguration
 apiVersion: kubeadm.k8s.io/v1alpha1
 api:
-  advertiseAddress: {{ K8S_ADVERTISE_ADDRESS }}
+  advertiseAddress: {{ APISERVER_ADVERTISE_ADDRESS }}
 networking:
   podSubnet:        {{ K8S_SERVICE_ADDRESSES }}
 cloudProvider:      {{ K8S_CLOUD_PROVIDER }}

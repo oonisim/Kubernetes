@@ -1,47 +1,32 @@
 endpoints:
   apiserver:
-    protocol: https
-    host: "{{ ansible_fqdn }}"
-    port: "{{ K8S_API_PORT }}"
-    path: "healthz"
-    http_code: 200
-    content_match: "^ok$"
-    ca_certs:    "{{ APISERVER_CA_CRT }}"
-    client_cert: "{{ APISERVER_CLIENT_CRT }}"
-    client_key:  "{{ APISERVER_CLIENT_KEY }}"
+    protocol:       "{{ APISERVER_PROTOCOL }}"
+    host:           "{{ ansible_fqdn }}"
+    port:           "{{ APISERVER_PORT }}"
+    path:           "{{ APISERVER_HELATH_ENDPOINT }}"
+    http_code:      200
+    content_match:  "^ok$"
+    ca_certs:       "{{ APISERVER_CA_CRT }}"
+    client_cert:    "{{ APISERVER_CLIENT_CRT }}"
+    client_key:     "{{ APISERVER_CLIENT_KEY }}"
   etcd:
-    protocol: http
+    protocol:       "{{ ETCD_PROTOCOL }}"
     # ETCD (K8S 1.9) binds on localhost I/F only.
-    host: localhost
-    port: "{{ K8S_ETCD_PORT }}"
-    path: "health"
-    http_code: 200
-    content_match: '^\{"health": "true"\}$'
-    ca_certs:    "{{ ETCD_CA_CRT }}"
-    client_cert: "{{ ETCD_CLIENT_CRT }}"
-    client_key:  "{{ ETCD_CLIENT_KEY }}"
+    host:           localhost
+    port:           "{{ ETCD_PORT }}"
+    path:           "{{ ETCD_HELATH_ENDPOINT }}"
+    http_code:      200
+    content_match:  '^\{"health": "true"\}$'
+    ca_certs:       "{{ ETCD_CA_CRT }}"
+    client_cert:    "{{ ETCD_CLIENT_CRT }}"
+    client_key:     "{{ ETCD_CLIENT_KEY }}"
   kubelet:
-    protocol: https
-    host: "{{ ansible_fqdn }}"
-    port: "{{ K8S_KUBELET_PORT }}"
-    path: "healthz"
-    http_code: 200
-    content_match: '^ok$'
-    ca_certs:    "{{ KUBELET_CA_CRT }}"
-    client_cert: "{{ KUBELET_CLIENT_CRT }}"
-    client_key:  "{{ KUBELET_CLIENT_KEY }}"
-
-#--------------------------------------------------------------------------------
-# Does not work with K8S OOB as the CA cert is auto-generated at each node by kubelet.
-#--------------------------------------------------------------------------------
-#  kubelet_mule_a:
-#    protocol: https
-#    host: "ip-172-31-4-61.us-west-1.compute.internal"
-#    port: "10250"
-#    path: "healthz"
-#    http_code: 200
-#    content_match: '^ok$'
-#    ca_certs:    /var/lib/kubelet/pki/kubelet.crt
-#    client_cert: /etc/kubernetes/pki/apiserver-kubelet-client.crt
-#    client_key:  /etc/kubernetes/pki/apiserver-kubelet-client.key
-#--------------------------------------------------------------------------------
+    protocol:       "{{ KUBELET_PROTOCOL }}"
+    host:           "{{ ansible_fqdn }}"
+    port:           "{{ KUBELET_PORT }}"
+    path:           "{{ KUBELET_HEALTH_ENDPOINT }}"
+    http_code:      200
+    content_match:  '^ok$'
+    ca_certs:       "{{ KUBELET_CA_CRT }}"
+    client_cert:    "{{ KUBELET_CLIENT_CRT }}"
+    client_key:     "{{ KUBELET_CLIENT_KEY }}"

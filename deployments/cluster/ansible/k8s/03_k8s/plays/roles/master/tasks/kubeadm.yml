@@ -21,7 +21,7 @@
 - name: "Kubeadmn init"
 # https://github.com/kubernetes/kubernetes/issues/57718
 #  shell: |
-#    kubeadm init --pod-network-cidr={{ K8S_SERVICE_ADDRESSES }} --apiserver-advertise-address={{ K8S_ADVERTISE_ADDRESS }}
+#    kubeadm init --pod-network-cidr={{ K8S_SERVICE_ADDRESSES }} --apiserver-advertise-address={{ APISERVER_ADVERTISE_ADDRESS }}
   shell: |
     kubeadm init --config {{ K8S_CONFIG_HOME }}/kubeadm_config.yaml
 

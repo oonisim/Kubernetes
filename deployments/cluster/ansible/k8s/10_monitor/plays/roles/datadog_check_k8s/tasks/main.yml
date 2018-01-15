@@ -3,7 +3,7 @@
 #--------------------------------------------------------------------------------
 - name: "Place dd-agent http_check manifest for K8S services"
   template:
-    src: "{{ role_path }}/templates/http_check_k8s.yaml.j2"
+    src: "{{ role_path }}/templates/http_check_k8s.yaml"
     dest: "{{ DATADOG_AGENT_HOME }}/conf.d/http_check.yaml"
     owner: "dd-agent"
     group: "dd-agent"
