@@ -1,0 +1,21 @@
+#--------------------------------------------------------------------------------
+# Datadog etcd check.
+# https://github.com/DataDog/integrations-core/tree/master/etcd
+#--------------------------------------------------------------------------------
+- name: "Place dd-agent manifest for {{ role_path|basename }}"
+  template:
+    src: "{{ role_path }}/templates/etcd.yaml"
+    dest: "{{ DATADOG_AGENT_HOME }}/conf.d/etcd.yaml"
+    owner: "dd-agent"
+    group: "dd-agent"
+    mode: 0640
+
+#--------------------------------------------------------------------------------
+# Resgart DD agent on host
+#--------------------------------------------------------------------------------
+- name: "Restart dd-agetnt on the host"
+  shell: |
+    /etc/init.d/datadog-agent restart
+    sleep 15
+    /etc/init.d/datadog-agent info -v
+  register: ddagent_restart
