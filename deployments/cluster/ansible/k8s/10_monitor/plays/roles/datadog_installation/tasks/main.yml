@@ -23,7 +23,7 @@
 
 - name: "Give r access to client certificate files for {{ K8S_GROUP }}"
   file:
-    path:     "{{ K8S_CA_HOME }}/{{ item }}"
+    path:     "{{ item }}"
     state:    "file"
     group:    "{{ K8S_GROUP }}"
     mode:     0640

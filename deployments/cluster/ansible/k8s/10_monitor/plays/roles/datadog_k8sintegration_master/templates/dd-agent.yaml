@@ -6,25 +6,37 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: dd-agent-config
-  namespace: default
+  namespace: {{ DATADOG_NAMESPACE }}
 data:
+  # No need to use Bearer token with certificates.
   kubernetes-config: |
     init_config:
     instances:
       - port: {{ CADVISOR_PORT }}
-        enabled_gauges:
-        - cpu.*
-        - filesystem.*
-        - memory.*
-        - network.tcp6.*
+        api_server_url:       {{ APISERVER_PROTOCOL }}://{{ APISERVER_HOST }}:{{ APISERVER_PORT }}
         apiserver_client_crt: {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ APISERVER_CLIENT_CRT|basename }}
         apiserver_client_key: {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ APISERVER_CLIENT_KEY|basename }}
         apiserver_ca_cert:    {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ APISERVER_CA_CRT|basename }}
+        kubelet_tls_verify:   True
         kubelet_client_crt:   {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ KUBELET_CLIENT_CRT|basename }}
         kubelet_client_key:   {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ KUBELET_CLIENT_KEY|basename }}
         kubelet_cert:         {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ KUBELET_CA_CRT|basename }}
+        namespace_name_regexp: '.*'
+        enabled_gauges:
+          - cpu.*
+          - filesystem.*
+          - memory.*
+          - network.*
     tags:
       - dd-agent:true
+
+---
+# You need to use that account for your dd-agent DaemonSet
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ DATADOG_SERVICE_ACCOUNT }}
+  namespace: {{ DATADOG_NAMESPACE }}
 
 ---
 #--------------------------------------------------------------------------------
@@ -35,6 +47,7 @@ apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: dd-agent
+  namespace: {{ DATADOG_NAMESPACE }}
 spec:
   template:
     metadata:
@@ -42,8 +55,8 @@ spec:
         app: dd-agent
       name: dd-agent
     spec:
-      nodeSelector:
-#        node_type: mule-non-prod
+      nodeSelector: {{ DATADOG_NODE_SELECTOR }}
+      serviceAccountName: {{ DATADOG_SERVICE_ACCOUNT }}
       containers:
       - image: datadog/docker-dd-agent:latest
         imagePullPolicy: Always
@@ -63,6 +76,10 @@ spec:
             value: docker
           - name: DD_PROCESS_AGENT_ENABLED
             value: "true"
+          #--------------------------------------------------------------------------------
+          # This resolved the issue of not being able to talk to kubelet in OpenShift.
+          # Uncomment this variable if the agent has issues reaching kubelet
+          #--------------------------------------------------------------------------------
           # Uncomment this variable if the agent has issues reaching kubelet
           # - name: KUBERNETES_KUBELET_HOST
           #   valueFrom:
@@ -70,6 +87,7 @@ spec:
           #       fieldPath: status.hostIP  # Kubernetes >= 1.7
           #       # or
           #       # fieldPath: spec.nodeName  # Kubernetes < 1.7
+          #--------------------------------------------------------------------------------
         resources:
           requests:
             memory: "128Mi"

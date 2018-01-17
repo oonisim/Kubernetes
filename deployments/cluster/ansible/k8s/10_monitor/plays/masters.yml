@@ -11,4 +11,5 @@
     - datadog_k8sintegration_common
     - datadog_k8sintegration_master
     - datadog_check_k8s
+    - datadog_check_etcd
 #    - fluentd_elasticsearch

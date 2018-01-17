@@ -13,7 +13,8 @@
   become: true
   become_user: "{{ K8S_ADMIN }}"
   shell: |
-    kubectl get secret k8s-certs && kubectl delete secret k8s-certs
+    kubectl get secret k8s-certs -n {{ DATADOG_NAMESPACE }} && kubectl delete secret k8s-certs -n {{ DATADOG_NAMESPACE }}
+    sleep 3
   ignore_errors: true
 
 #--------------------------------------------------------------------------------
@@ -23,6 +24,7 @@
   shell: >
     KUBECONFIG={{ KUBECONFIG_ADMIN }}
     kubectl create secret generic k8s-certs
+    --namespace={{ DATADOG_NAMESPACE }}
     --from-file={{ APISERVER_CLIENT_CRT }}
     --from-file={{ APISERVER_CLIENT_KEY }}
     --from-file={{ APISERVER_CA_CRT }}
@@ -32,8 +34,7 @@
 #    --from-file={{ ETCD_CLIENT_CRT }}
 #    --from-file={{ ETCD_CLIENT_KEY }}
 #    --from-file={{ ETCD_CA_CRT }}
-  become: true
-  become_user: root
+#    --from-literal=token={{ DATADOG_K8S_TOKEN }}
 
 #--------------------------------------------------------------------------------
 # Datadog K8S agent setups as daemonset
@@ -78,7 +79,7 @@
   shell: |
     kubectl create -f {{ DATADOG_MANIFEST_HOME }}/dd-agent.yaml
 
-- name: "DD agent leader election for kube-state-mertic event collection"
+- name: "place datadog cluster role manifests"
   template:
     src:    "{{ role_path }}/templates/dd_rbac.yaml"
     dest:   "{{ DATADOG_MANIFEST_HOME }}/dd-rbac.yaml"

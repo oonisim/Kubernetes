@@ -41,7 +41,7 @@ KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
 #--------------------------------------------------------------------------------
 # kubectl config
 #--------------------------------------------------------------------------------
-KUBECONFIG_ADMIN: "/etc/kubernetes/admin.conf"
+KUBECONFIG_ADMIN: "{{ K8S_CONFIG_HOME }}/admin.conf"
 
 
 #--------------------------------------------------------------------------------
@@ -117,7 +117,8 @@ KUBELET_CLIENT_CRT:   /etc/kubernetes/pki/apiserver-kubelet-client.crt
 KUBELET_CLIENT_KEY:   /etc/kubernetes/pki/apiserver-kubelet-client.key
 KUBELET_CA_CRT:       /var/lib/kubelet/pki/kubelet.crt
 
+ETCD_CA_CRT:          /etc/kubernetes/pki/ca.crt
+# Dummy
 ETCD_CLIENT_CRT:      /etc/kubernetes/pki/apiserver-kubelet-client.crt
 ETCD_CLIENT_KEY:      /etc/kubernetes/pki/apiserver-kubelet-client.key
-ETCD_CA_CRT:          /var/lib/kubelet/pki/ca.crt
 
