@@ -4,4 +4,5 @@ DATADOG_MANIFEST_HOME: "{{DATADOG_AGENT_HOME }}/manifests"
 DD_AGENT_CERT_MOUNT_PATH: "/etc/pki/k8s"
 DATADOG_NAMESPACE: "kube-system"
 DATADOG_SERVICE_ACCOUNT: "datadog"
-DATADOG_NODE_SELECTOR: '{"node_type":"private-infra"}'
+#DATADOG_NODE_SELECTOR: '{"node_type":"private-infra"}'
+DATADOG_NODE_SELECTOR:

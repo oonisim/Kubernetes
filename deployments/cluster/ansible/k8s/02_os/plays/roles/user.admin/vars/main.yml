@@ -2,7 +2,7 @@
 users:
   - name: "{{ SYS_USER }}"
     group: "{{ K8S_GROUP }}"
-    groups: "{{ docker_group }},{{ sudoer_group }}"
+    groups: "{{ DOCKER_GROUP }},{{ sudoer_group }}"
     authorized:
       - "/home/{{ SYS_USER }}/.ssh/id_rsa.pub"
     password: "$6$lvOMGppNKTpUOL1u$kf5zKyxl7glYWif4QD3Q0IIoVeG5fy/feZQ5JE.haeHLE4qaNEq8J4Rl6Tg0xJ4L4sxOMA6kmvro34ou2RkPD0"

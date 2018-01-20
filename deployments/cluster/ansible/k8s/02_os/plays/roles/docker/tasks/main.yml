@@ -3,13 +3,13 @@
 #--------------------------------------------------------------------------------
 - name: "Create group docker..."
   group:
-    name: "{{ docker_group }}"
+    name: "{{ DOCKER_GROUP }}"
     state: present
 
-- name: Adding existing user '{{ user }}' to group sudo
+- name: "Adding existing user to {{ DOCKER_GROUP }} group"
   user:
     name:   "{{ item }}"
-    groups: "{{ docker_group }}"
+    groups: "{{ DOCKER_GROUP }}"
     append: "yes"                 # useradd -aG
   with_items:
      - "{{ docker_users }}"

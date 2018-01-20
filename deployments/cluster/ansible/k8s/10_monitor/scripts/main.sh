@@ -4,6 +4,10 @@
 #--------------------------------------------------------------------------------
 set -eu
 
+export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:?"Set AWS_ACCESS_KEY_ID"}
+export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:?"Set AWS_SECRET_ACCESS_KEY"}
+export DATADOG_API_KEY=${DATADOG_API_KEY:?"Set DATADOG_API_KEY"}
+
 #--------------------------------------------------------------------------------
 # PLAYBOOK_DIR: ../plays as convention
 # TARGET:       Target environment
@@ -39,6 +43,7 @@ $(_locate ${DIR} '/' 'conductor.sh') \
   ${PLAYBOOK_DIR} \
   ${TARGET} \
   ${REMOTE_USER} \
+  -e "DATADOG_API_KEY=${DATADOG_API_KEY}" \
   ${ARGS}
 
 . ${DIR}/_posttask.sh

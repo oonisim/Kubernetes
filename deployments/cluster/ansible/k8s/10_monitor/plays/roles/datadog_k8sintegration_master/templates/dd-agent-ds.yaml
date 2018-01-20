@@ -1,4 +1,5 @@
 #jinja2: lstrip_blocks: "True", trim_blocks: "True"
+---
 #--------------------------------------------------------------------------------
 # Mount /etc/dd-agent/conf.d/kubernetes.yaml as config map.
 #--------------------------------------------------------------------------------
@@ -8,7 +9,6 @@ metadata:
   name: dd-agent-config
   namespace: {{ DATADOG_NAMESPACE }}
 data:
-  # No need to use Bearer token with certificates.
   kubernetes-config: |
     init_config:
     instances:
@@ -22,21 +22,25 @@ data:
         kubelet_client_key:   {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ KUBELET_CLIENT_KEY|basename }}
         kubelet_cert:         {{ DD_AGENT_CERT_MOUNT_PATH }}/{{ KUBELET_CA_CRT|basename }}
         namespace_name_regexp: '.*'
+        leader_candidate:     true
         enabled_gauges:
           - cpu.*
           - filesystem.*
           - memory.*
           - network.*
     tags:
-      - dd-agent:true
-
----
-# You need to use that account for your dd-agent DaemonSet
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: {{ DATADOG_SERVICE_ACCOUNT }}
-  namespace: {{ DATADOG_NAMESPACE }}
+      - datadog_check:dd_agent
+      - datadog_node:{{ inventory_hostname }}
+      - description:datadog dd-agent container
+#  kubernetes-state-config: |
+#    init_config:
+#    instances:
+#      - kube_state_url: http://kube-state-metrics.{{ KUBESTATE_NAMESPACE }}.svc.cluster.local:8080/metrics
+#    tags:
+#      - datadog_check:kube_state_metric
+#      - datadog_node:{{ inventory_hostname }}
+#      - description:datadog check to get mertics from kube-state-metrics
+#      - url:http://kube-state-metrics.{{ KUBESTATE_NAMESPACE }}.svc.cluster.local:8080/metrics
 
 ---
 #--------------------------------------------------------------------------------
@@ -57,6 +61,7 @@ spec:
     spec:
       nodeSelector: {{ DATADOG_NODE_SELECTOR }}
       serviceAccountName: {{ DATADOG_SERVICE_ACCOUNT }}
+      # https://github.com/kubernetes/kubernetes/issues/27282
       containers:
       - image: datadog/docker-dd-agent:latest
         imagePullPolicy: Always
@@ -65,6 +70,10 @@ spec:
           - containerPort: 8125
             name: dogstatsdport
             protocol: UDP
+        # Tempolary measure to avoid SELinux/permission denied
+        # Need to fiture out the correct configuration to access the mounted files via hostPath.
+        securityContext:
+          privileged: true
         env:
           - name: TAGS
             value: "{{ DATADOG_TAGS }}"
@@ -75,25 +84,23 @@ spec:
           - name: SD_BACKEND
             value: docker
           - name: DD_PROCESS_AGENT_ENABLED
-            value: "true"
+            #value: "true"
+            value: "false"
           #--------------------------------------------------------------------------------
-          # This resolved the issue of not being able to talk to kubelet in OpenShift.
+          # This resolved the issue of not being able to talk to kubelet.
           # Uncomment this variable if the agent has issues reaching kubelet
           #--------------------------------------------------------------------------------
-          # Uncomment this variable if the agent has issues reaching kubelet
-          # - name: KUBERNETES_KUBELET_HOST
-          #   valueFrom:
-          #     fieldRef:
+          - name: KUBERNETES_KUBELET_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName  # Kubernetes < 1.7
           #       fieldPath: status.hostIP  # Kubernetes >= 1.7
-          #       # or
-          #       # fieldPath: spec.nodeName  # Kubernetes < 1.7
-          #--------------------------------------------------------------------------------
         resources:
           requests:
             memory: "128Mi"
             cpu: "100m"
           limits:
-            memory: "512Mi"
+            memory: "256Mi"
             cpu: "250m"
         volumeMounts:
           - name: dockersocket
@@ -148,7 +155,6 @@ spec:
           secret:
             secretName:  k8s-certs
             defaultMode: 448     # 0700 as JSON does not support octal
-
         #--------------------------------------------------------------------------------
         # /etc/dd-agent/conf.d/kubernetes.yaml for further monitoring.
         # https://gist.github.com/CharlyF/dd481c3ed4fe38e2e47b4ccd85328032
@@ -159,3 +165,5 @@ spec:
             items:
             - key: kubernetes-config
               path: kubernetes.yaml
+            #- key: kubernetes-state-config
+            #  path: kubernetes_state.yaml

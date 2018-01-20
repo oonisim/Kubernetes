@@ -1,0 +1,2 @@
+- import_tasks: cadvisor_k8s.yml
+  when: DISTRIBUTION == DISTRIBUTION_K8S
