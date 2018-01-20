@@ -1,8 +1,7 @@
 endpoints:
   etcd:
     protocol:       "{{ ETCD_PROTOCOL }}"
-    # ETCD (K8S 1.9) binds on localhost I/F only.
-    host:           localhost
+    host:           "{{ ETCD_HOST }}"
     port:           "{{ ETCD_PORT }}"
     path:           "{{ ETCD_HELATH_ENDPOINT }}"
     http_code:      200

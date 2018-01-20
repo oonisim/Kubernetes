@@ -84,16 +84,16 @@ spec:
           - name: SD_BACKEND
             value: docker
           - name: DD_PROCESS_AGENT_ENABLED
-            #value: "true"
-            value: "false"
+            value: "true"
+            #value: "false"
           #--------------------------------------------------------------------------------
           # This resolved the issue of not being able to talk to kubelet.
           # Uncomment this variable if the agent has issues reaching kubelet
           #--------------------------------------------------------------------------------
-          - name: KUBERNETES_KUBELET_HOST
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName  # Kubernetes < 1.7
+          #- name: KUBERNETES_KUBELET_HOST
+          #  valueFrom:
+          #    fieldRef:
+          #      fieldPath: spec.nodeName  # Kubernetes < 1.7
           #       fieldPath: status.hostIP  # Kubernetes >= 1.7
         resources:
           requests:

@@ -5,8 +5,8 @@
   become_user: root
   become_method: sudo
   roles:
-    - datadog_installation
-    - datadog_check_process
+    - dd_installation
+    - dd_common
     - cadvisor
   #--------------------------------------------------------------------------------
   # Ansible has serious bug of handler not triggered.

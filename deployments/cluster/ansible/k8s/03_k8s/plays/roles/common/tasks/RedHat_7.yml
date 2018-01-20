@@ -93,14 +93,14 @@
 - name: "Install K8S prerequisite packages"
   yum:
     name: "{{ item }}"
-    state: "present"
+    state: "latest"
     update_cache: "true"
   with_items: "{{ K8S_PACKAGES_PREREQUISITES }}"
 
 - name: "Install packages"
   yum:
     name: "{{ item }}"
-    state: "present"
+    state: "latest"
     update_cache: "true"
   with_items: "{{ K8S_PACKAGES }}"
 

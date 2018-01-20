@@ -6,13 +6,13 @@
   become_user: root
   become_method: sudo
   roles:
-    - datadog_installation
-    - datadog_check_k8s
-    - datadog_check_etcd
-    - datadog_check_process
+    - dd_installation
+    - dd_common
+    - dd_etcd
+    - dd_k8s_master
     - kube_state_metrics
     - cadvisor
-    - datadog_k8sintegration_master
+    - dd_daemonset
     #- fluentd_elasticsearch
 
   #--------------------------------------------------------------------------------

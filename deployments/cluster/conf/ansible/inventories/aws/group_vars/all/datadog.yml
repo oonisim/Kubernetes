@@ -1,8 +1,9 @@
 DATADOG_TAGS: "environment:masa,project:test"
 DATADOG_AGENT_HOME: /etc/dd-agent
 DATADOG_MANIFEST_HOME: "{{DATADOG_AGENT_HOME }}/manifests"
-DD_AGENT_CERT_MOUNT_PATH: "/etc/pki/k8s"
+DD_AGENT_CERT_MOUNT_PATH: "/etc/kubernetes/pki"
 DATADOG_NAMESPACE: "kube-system"
 DATADOG_SERVICE_ACCOUNT: "datadog"
 #DATADOG_NODE_SELECTOR: '{"node_type":"private-infra"}'
 DATADOG_NODE_SELECTOR:
+
