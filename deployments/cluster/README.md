@@ -1,5 +1,7 @@
-K8S (1.8) Installation Ansible
+K8S deployment with kubeadm using Ansible
 =========
+
+Build a latest Kubernetes (K8S) non-HA cluster in AWS (CentOS) using kubeadm to explore K8S. There are multiple K8S/AWS deployment tools (kops, rancher, etc) and kubeadm is not yet production ready tool but it will be the one.
 
 Requirements
 ------------
@@ -48,7 +50,7 @@ Make sure to provide the POD network CIDR range to kubeadm and it aligns with th
 kubeadm init --pod-network-cidr=10.244.0.0/16
 ```
 
-Flannel manifest
+[Flannel manifest](https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml)
 ```
 kind: ConfigMap
 apiVersion: v1
@@ -134,7 +136,50 @@ sudo systemctl --now disable firewalld
 sudo systemctl stop firewalld
 ```
 
+---
 
-How to run
-----------------
-1. <module>/scripts/main.sh ${ENV} ${REMOTE_USER}
+# Structure
+
+```
+├── ansible
+│   ├── aws
+│   │   ├── ec2
+│   │   │   ├── creation        <----- Create/setup AWS
+│   │   │   └── operations      <----- Operate AWS
+│   │   ├── conductor.sh
+│   │   ├── player.sh
+│   │   └── utilities
+│   ├── k8s
+│   │   ├── 01_prerequisite     <----- Pre-requisites to run Ansible e.g. Python requirements.
+│   │   │   ├── plays           <----- Ansible playbooks
+│   │   │   └── scripts         <----- Script to execute playbooks.
+│   │   ├── 02_os               <----- OS level setup
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── 03_k8s              <----- K8S deployment
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── 10_monitor          <----- Datadog deployment
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── 20_applications     <----- K8S applicaiton deployments
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── _utility.sh
+│   │   ├── conductor.sh
+│   │   └── player.sh
+│   ├── run_aws.sh
+│   └── run_k8s.sh
+├── conf
+│   ├── ansible
+│   │   ├── ansible.cfg
+│   │   ├── callbacks
+│   │   ├── inventories
+│   │   └── vaultpass.encrypted
+│   └── keys
+└── tools
+```
+
+# How to run
+
+<module>/scripts/main.sh ${ENV} ${REMOTE_USER}

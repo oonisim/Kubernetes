@@ -28,3 +28,12 @@
   args:
     chdir: "{{ DATADOG_MANIFEST_HOME }}"
   run_once: true
+
+# https://docs.openshift.org/latest/admin_guide/manage_scc.html#grant-access-to-the-privileged-scc
+# https://access.redhat.com/solutions/3120011
+- name: "Add required previlleage to use hostPath and access API resources"
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
+  shell: |
+    oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:{{ KUBESTATE_NAMESPACE }}:{{ KUBESTATE_SERVICE_ACCOUNT }}
+  when: DISTRIBUTION == DISTRIBUTION_OSE

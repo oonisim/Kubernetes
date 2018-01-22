@@ -1,25 +1,2 @@
-#--------------------------------------------------------------------------------
-# Datadog installation.
-# Make dd-agent can access K8S certificate files for client auth, etc.
-#--------------------------------------------------------------------------------
-- include: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
-
-- name: "Adding dd-agent in {{ K8S_GROUP }} to access K8S file e.g certificates"
-  user:
-    name:     "dd-agent"
-    groups:   "{{ K8S_GROUP }}"
-    append:   "yes"                 # useradd -aG
-
-- name: "Adding dd-agent user to {{ DOCKER_GROUP }} group for dd-agent to access docker e.g. docker.sock"
-  user:
-    name:     "dd-agent"
-    groups:   "{{ DOCKER_GROUP }}"
-    append:   "yes"                 # useradd -aG
-
-- name: "Adding {{ K8S_ADMIN }} to dd-agent group"
-  user:
-    name:   "{{ item }}"
-    groups: "dd-agent"
-    append: "yes"                 # useradd -aG
-  with_items:
-     - "{{ K8S_ADMIN }}"
+- include_tasks: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
+- import_tasks: groups.yml

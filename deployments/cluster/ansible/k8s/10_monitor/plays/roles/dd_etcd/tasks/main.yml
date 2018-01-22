@@ -2,6 +2,8 @@
 # Datadog etcd check.
 # https://github.com/DataDog/integrations-core/tree/master/etcd
 #--------------------------------------------------------------------------------
+- import_tasks: permissions.yml
+
 - name: "Place etcd check for {{ role_path|basename }}"
   template:
     src:    "{{ role_path }}/templates/etcd.yaml"
