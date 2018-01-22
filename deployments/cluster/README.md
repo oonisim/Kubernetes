@@ -181,15 +181,42 @@ Structure
 └── tools
 ```
 
+
+Preparation
+------------
+
+### Environment variables
+
+Set the variables appropriately before execution.
+
+```
+AWS_SECRET_ACCESS_KEY
+AWS_ACCESS_KEY_ID
+DATADOG_API_KEY
+```
+
+### AWS
+Test the AWS connectivity with Ansible dynamic inventory.
+```
+conf/ansible/inventories/aws/inventory/ec2.py
+```
+
+### SSH
+Make sure SSH can login to the target boxes during the executions.
+```
+eval $(ssh-agent)
+ssh-add <key>
+```
+
 Execution
 ------------
 
-### AWS
+### AWS creation/setup
 ```
 ansible/aws/ec2/creation/scripts/main.sh
 ```
 
-### K8S
+### K8S deployment
 
 Module
 1. 01_prerequisite
