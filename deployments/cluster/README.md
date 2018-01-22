@@ -138,7 +138,8 @@ sudo systemctl stop firewalld
 
 ---
 
-# Structure
+Structure
+------------
 
 ```
 ├── ansible
@@ -180,6 +181,23 @@ sudo systemctl stop firewalld
 └── tools
 ```
 
-# How to run
+Execution
+------------
 
-<module>/scripts/main.sh ${ENV} ${REMOTE_USER}
+### AWS
+```
+ansible/aws/ec2/creation/scripts/main.sh
+```
+
+### K8S
+
+Module
+1. 01_prerequisite
+2. 02_os
+3. 03_k8s
+4. 10_monitor
+5. 20_applications
+
+```
+ansible/k8s/<module>/scripts/main.sh
+```
