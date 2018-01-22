@@ -10,10 +10,131 @@ Requirements
 * k8s/conf/ansible/inventories/dev/group_vars/all/{env.yml and server.yml} have been configured.
 * k8s/conf/ansible/inventories/dev/inventory/hosts inventory has been configured.
 
+
+References
+------------
+
+### kubeadm
+
+* [Using kubeadm to Create a Cluster](https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/)
+* [Installing kubeadm](https://kubernetes.io/docs/setup/independent/install-kubeadm/)
+* [Troubleshooting kubeadm](https://kubernetes.io/docs/setup/independent/troubleshooting-kubeadm/)
+* [GitHub Kubeadm Design Documents](https://github.com/kubernetes/kubeadm/tree/master/docs/design)
+* [How kubeadm Initializes Your Kubernetes Master](https://www.ianlewis.org/en/how-kubeadm-initializes-your-kubernetes-master)
+
+### Cloud providor
+
+* [Creating a Custom Cluster from Scratch - Cloud Provider](https://kubernetes.io/docs/getting-started-guides/scratch/#cloud-provider)
+> Kubernetes has the concept of a Cloud Provider, which is a module which provides an interface for managing TCP Load Balancers, Nodes (Instances) and Networking Routes.
+
+* [Rancher Docs - Kubernetes - Cloud Providers](http://rancher.com/docs/rancher/latest/en/kubernetes/providers/)
+* [K8S AWS Cloud Provider Notes](https://docs.google.com/document/d/17d4qinC_HnIwrK0GHnRlD1FKkTNdN__VO4TH9-EzbIY/edit)
+
+Considerations
+------------
+
+### Hostname
+Make sure each node has correct hostname set and it can be resolved in all nodes. Otherwise there can be issues that K8S node cannot join the cluster although kubeadm join says success.
+
+### Disable swap
+
+[kubeadm init --kubernetes-version=v1.8.0 fail with connection refuse for Get http://localhost:10255/healthz](https://github.com/kubernetes/kubernetes/issues/53333)
+> As of release Kubernetes 1.8.0, kubelet will not work with enabled swap. You have two choices: either disable swap or add to kubelet flag to continue working with enabled swap.
+
+### POD Network CIDR Range
+Make sure to provide the POD network CIDR range to kubeadm and it aligns with that specified in the Flannel manifest.
+
+```
+kubeadm init --pod-network-cidr=10.244.0.0/16
+```
+
+Flannel manifest
+```
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kube-flannel-cfg
+  namespace: kube-system
+  labels:
+    tier: node
+    app: flannel
+data:
+  cni-conf.json: |
+    {
+      "name": "cbr0",
+      "type": "flannel",
+      "delegate": {
+        "isDefaultGateway": true
+      }
+    }
+  net-conf.json: |
+    {
+      "Network": "10.244.0.0/16",  <-----
+      "Backend": {
+        "Type": "vxlan"
+      }
+    }
+```
+
+### apiserver-advertise-address
+Make sure to specify the correct IP. If to use hostname, make sure it will not be resolved to a NAT address in VM environments.
+
+### AWS Cloud Provider
+Cloud provider needs to be specified to kubeadm at the cluster configuration. If not specified, it would require re-installing the cluster to use the feature (GitHub 57718).
+
+```
+kubeadm init --config kubeadm_config.yaml
+```
+Instead of using --cloud-provider=aws to kubeadm, use kubeadm configuration. --cloud-provider=aws used to be used but there are several reports it causes issues and the kubeadm init documentation does not specify it although the manifest part shows it.
+
+```
+kubeadm_config.yaml
+kind: MasterConfiguration
+apiVersion: kubeadm.k8s.io/v1alpha1
+api:
+  advertiseAddress: {{ APISERVER_ADVERTISE_ADDRESS }}
+networking:
+  podSubnet:        {{ K8S_SERVICE_ADDRESSES }}       <----- POD network CIDR 10.244.0.0/16
+cloudProvider:      {{ K8S_CLOUD_PROVIDER }}          <----- aws
+```
+
+### Cleanup / Reinstallation
+kubeadm reset does not clean up completely. Need to manually delete directories/files and Pod network interfaces.
+[Failed to setup network for pod \ using network plugins \"cni\": no IP addresses available in network: podnet; Skipping pod"](https://github.com/kubernetes/kubernetes/issues/39557)
+
+```
+rm -rf /var/lib/cni/
+rm -rf /var/lib/kubelet/*
+rm -rf /etc/cni/
+ifconfig cni0 down
+ifconfig flannel.1 down
+ifconfig docker0 down
+ip link delete cni0
+ip link delete flannel.1
+```
+
+### cgroups
+Make sure kubelet will be in the same cgroups of docker so that kubelet can talk with docker daemon.
+```
+kubelet --runtime-cgroups=<docker cgroup> --kubelet-cgroups <docker cgroup>
+```
+
+### SELinux
+For K8S pods to be able to access the host files, need to align or relabel the files, or need to configure POD security contexts. To avoid these steps, for this experimental K8s deployment, disable SELinux. DO NOT in real environments.
+
+**/etc/sysconfig/selinux**
+```
+SELINUX=disabled
+```
+
+### Firewalld
+Turn off the firewalld as K8S uses iptables to re-route the access to services to the backend pods.
+```
+sudo systemctl --now disable firewalld
+sudo systemctl stop firewalld
+```
+
+
 How to run
 ----------------
 1. <module>/scripts/main.sh ${ENV} ${REMOTE_USER}
-
-Note
-----------------
-Using root account to execute K8S, not a specific K8S admin account. To be fixed.
