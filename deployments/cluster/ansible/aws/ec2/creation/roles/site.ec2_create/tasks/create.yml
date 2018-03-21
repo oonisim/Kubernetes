@@ -23,8 +23,9 @@
     instance_type:   "{{ ec2_instance_type }}"
     count:           "{{ server_count }}"
     volumes:         "{{ ec2_volumes }}"
-    ec2_access_key:  "{{ ec2_access_key }}"
-    ec2_secret_key:  "{{ ec2_secret_key }}"
+    # Use environment variables
+    #aws_access_key:       "{{ ec2_access_key }}"
+    #aws_secret_key:       "{{ ec2_secret_key }}"
     key_name:        "{{ ec2_key_name }}"
     wait: true
   register: ec2
@@ -51,8 +52,9 @@
       type:               "{{ NODE_TYPE }}"
       environment:        "{{ ENV_ID }}"
       KubernetesCluster:  "{{ K8S_CLUSTER_NAME }}"
-    aws_access_key:       "{{ ec2_access_key }}"
-    aws_secret_key:       "{{ ec2_secret_key }}"
+    # Use environment variables
+    #aws_access_key:       "{{ ec2_access_key }}"
+    #aws_secret_key:       "{{ ec2_secret_key }}"
   with_indexed_items:     "{{ ec2.instance_ids }}"
 
 - name: Wait for the instance to come up
@@ -70,8 +72,9 @@
     region:           "{{ ec2_region }}"
     in_vpc:           yes
     state:            present
-    aws_access_key:   "{{ ec2_access_key }}"
-    aws_secret_key:   "{{ ec2_secret_key }}"
+    # Use environment variables
+    #aws_access_key:       "{{ ec2_access_key }}"
+    #aws_secret_key:       "{{ ec2_secret_key }}"
     reuse_existing_ip_allowed: yes
   with_items: "{{ ec2.instance_ids }}"
   register: eip
@@ -116,8 +119,9 @@
     filters:
       group_name:         "{{ ec2_security_group }}"
     region:               "{{ ec2_region }}"
-    ec2_access_key:       "{{ ec2_access_key }}"
-    ec2_secret_key:       "{{ ec2_secret_key }}"
+    # Use environment variables
+    #aws_access_key:       "{{ ec2_access_key }}"
+    #aws_secret_key:       "{{ ec2_secret_key }}"
   register: sg
 
 - name: "Tag SG"
@@ -127,6 +131,7 @@
     tags:
       environment:        "{{ ENV_ID }}"
       KubernetesCluster:  "{{ K8S_CLUSTER_NAME }}"
-    aws_access_key:       "{{ ec2_access_key }}"
-    aws_secret_key:       "{{ ec2_secret_key }}"
+    # Use environment variables
+    #aws_access_key:       "{{ ec2_access_key }}"
+    #aws_secret_key:       "{{ ec2_secret_key }}"
   with_items:             "{{ sg.security_groups }}"
