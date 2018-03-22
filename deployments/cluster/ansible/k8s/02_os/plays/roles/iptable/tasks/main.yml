@@ -1,8 +1,9 @@
 #--------------------------------------------------------------------------------
-# Application group/user/home.
-# Perhaps better to use http://docs.ansible.com/ansible/latest/yum_repository_module.html
+# kube-proxy utilizes iptables to control the pod network traffic.
+# - kubernetes.io/docs/concepts/cluster-administration/network-plugins/
+# - https://wiki.libvirt.org/page/Net.bridge.bridge-nf-call_and_sysctl.conf
 #--------------------------------------------------------------------------------
-- name: Setup Yum repository for Kubernetes
+- name: "Enable pod network traffic procssing in iptables."
   shell:
     cmd: |
       sudo tee /etc/sysctl.d/k8s.conf <<EOF

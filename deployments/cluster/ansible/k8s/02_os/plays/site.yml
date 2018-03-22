@@ -4,7 +4,7 @@
   any_errors_fatal: true
   become: yes
   roles:
-    - common
+    - packages
     - selinux
     - firewalld
     - iptable
