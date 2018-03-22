@@ -12,6 +12,13 @@ Requirements
 * k8s/conf/ansible/inventories/dev/group_vars/all/{env.yml and server.yml} have been configured.
 * k8s/conf/ansible/inventories/dev/inventory/hosts inventory has been configured.
 
+AWS
+------------
+AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variable have been set.
+
+Datadog
+------------
+DATADOG_API_KEY environment variable has been set.
 
 References
 ------------

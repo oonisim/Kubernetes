@@ -15,7 +15,7 @@
 - name: Start EC2 instances whose 'autostart' tag value is true
   ec2:
     instance_ids: "{{ start_hosts }}"
-    region:       "{{ ec2_region }}"
+    region:       "{{ aws_region }}"
     state:        "running"
     wait:         "true"
     # Use environment variables

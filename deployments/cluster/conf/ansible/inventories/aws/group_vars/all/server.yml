@@ -29,6 +29,7 @@ DOCKER_USERS:
 # Etcd
 #--------------------------------------------------------------------------------
 ETCD_CONFIG_HOME: "/etc/kubernetes"
+ETCD_CA_HOME: "{{ ETCD_CONFIG_HOME }}"
 
 #--------------------------------------------------------------------------------
 # K8S configuration file path

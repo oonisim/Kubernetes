@@ -9,7 +9,7 @@ DIR=$(dirname $(realpath $0))
 
 #--------------------------------------------------------------------------------
 # ENVRIONMENT: Target environment id
-# RESULT_PATH: Location to place results.
+# HOSTFILE:    hosts file to be created.
 # TASK       : List
 #--------------------------------------------------------------------------------
 
@@ -18,18 +18,18 @@ TASK=list
 
 if [ $# -eq 2 ]; then
     ENVIRONMENT=$1
-    RESULT_PATH=$2
+    HOSTFILE=$2
 else
     echo "Taget environment?"
     read ENVIRONMENT
 
-    echo "Result directory?"
-    read RESULT_PATH
+    echo "host file to create?"
+    read HOSTFILE
 fi
 
 ARGS="\
   -e ENV_ID=${ENVIRONMENT}\
-  -e result_path=${RESULT_PATH}"
+  -e HOSTFILE=${HOSTFILE}"
 
 ln -sf ${PLAYBOOK_DIR}/${TASK}.yml ${PLAYBOOK_DIR}/site.yml
 $(_locate ${DIR} '/' 'conductor.sh') ${PLAYBOOK_DIR} ${ENVIRONMENT} ${ARGS}

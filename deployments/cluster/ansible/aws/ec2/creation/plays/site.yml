@@ -1,5 +1,2 @@
-- name: Configuring the EC2 Instance
-  hosts: localhost
-  connection: local
-  roles:
-    - site.ec2_create
+- import_playbook: master.yml
+- import_playbook: worker.yml

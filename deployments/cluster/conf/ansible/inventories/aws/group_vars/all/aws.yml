@@ -1,16 +1,32 @@
 #--------------------------------------------------------------------------------
 # EC2
 #--------------------------------------------------------------------------------
+# EC2 SSH keypair to SSH login to the instances.
 ec2_key_name: "aws_maonishi_us-west-1.pem"
 
 # Amazon Security Group Name - this MUST already
 # exist before our Ansible scripts can be run.
-ec2_security_group: "SG_K8S"
+ec2_security_group: "SG_K8S_TEST"
 
 # Location of the servers - the us-east region
 # is generally cheapest.
-ec2_region: "us-west-1"
-ec2_zone:   "us-west-1b"
+aws_region: "us-west-1"
+aws_zone:   "us-west-1b"
+
+
+# VPC Information
+vpc_name:       "VPC_K8S"
+vpc_cidr_block: "10.0.0.0/16"
+
+# For Security Group Rule
+my_ip:          "X.X.X.X"
+
+# Subnets
+public_subnet_1_cidr:  "10.0.0.0/24"
+private_subnet_1_cidr: "10.0.1.0/24"
+public_subnet_2_cidr:  "10.0.10.0/24"
+private_subnet_2_cidr: "10.0.11.0/24"
+
 
 #--------------------------------------------------------------------------------
 # Master
