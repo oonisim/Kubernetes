@@ -11,55 +11,64 @@ RHEL
 
 Prerequisites
 ------------
-### Target Nodes
+#### Target Nodes
 * A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
 Use this user as K8S_ADMIN in the configurations (below).
 
-### Ansible Master
+#### Ansible Master
 * On Ansible master, ssh-agent or .ssh/config is configured to be able to SSH into the targets without providing pass phrase.
 
-### AWS
+#### AWS
 AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variable have been set to those of the AWS account user to use.
 
-### Datadog (optional)
+#### Datadog (optional)
 DATADOG_API_KEY environment variable has been set to the Datadog account API_KEY.
 
 Configurations
+------------
 
 * k8s/deploy/02_os/roles/hosts/files/hosts has been provided with those IP and hostnames.
 * k8s/conf/ansible/inventories/dev/group_vars/all/{env.yml and server.yml} have been configured.
 * k8s/conf/ansible/inventories/dev/inventory/hosts inventory has been configured.
-------------
 
 Structure
 ------------
 
 ```
+.
+├── README.md
 ├── ansible
 │   ├── aws
 │   │   ├── ec2
-│   │   │   ├── creation        <----- Create/setup AWS
-│   │   │   └── operations      <----- Operate AWS
+│   │   │   ├── creation
+│   │   │   └── operations
 │   │   ├── conductor.sh
-│   │   ├── player.sh
-│   │   └── utilities
+│   │   └── player.sh
 │   ├── k8s
-│   │   ├── 01_prerequisite     <----- Pre-requisites to run Ansible e.g. Python requirements.
-│   │   │   ├── plays           <----- Ansible playbooks
-│   │   │   └── scripts         <----- Script to execute playbooks.
-│   │   ├── 02_os               <----- OS level setup
+│   │   ├── 01_prerequisite
+│   │   │   ├── Readme.md
 │   │   │   ├── plays
 │   │   │   └── scripts
-│   │   ├── 03_k8s              <----- K8S deployment
+│   │   ├── 02_os
+│   │   │   ├── Readme.md
 │   │   │   ├── plays
 │   │   │   └── scripts
-│   │   ├── 10_monitor          <----- Datadog deployment
+│   │   ├── 03_k8s_setup
+│   │   │   ├── Readme.md
 │   │   │   ├── plays
 │   │   │   └── scripts
-│   │   ├── 20_applications     <----- K8S applicaiton deployments
+│   │   ├── 04_k8s_configuration
 │   │   │   ├── plays
 │   │   │   └── scripts
-│   │   ├── _utility.sh
+│   │   ├── 10_datadog
+│   │   │   ├── Readme.md
+│   │   │   ├── diff.sh
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── 20_applications
+│   │   │   ├── Readme.md
+│   │   │   ├── plays
+│   │   │   └── scripts
 │   │   ├── conductor.sh
 │   │   └── player.sh
 │   ├── run_aws.sh
@@ -69,9 +78,22 @@ Structure
 │   │   ├── ansible.cfg
 │   │   ├── callbacks
 │   │   ├── inventories
+│   │   │   └── aws
 │   │   └── vaultpass.encrypted
+│   ├── env
+│   │   └── aws
+│   │       ├── env.properties
+│   │       ├── server.properties
+│   │       └── templates.list
 │   └── keys
+│       └── public.pem
 └── tools
+    ├── decrypt.sh
+    ├── encrypt.sh
+    ├── gen_encryption_key.sh
+    ├── parse_yml.sh
+    └── sshsetup.sh
+
 ```
 
 
