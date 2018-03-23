@@ -9,7 +9,7 @@
   run_once: true
 
 - name: "Create/recreate {{ DATADOG_MANIFEST_HOME }}/{{ role_path|basename }}"
-- file:
+  file:
     path:   "{{ DATADOG_MANIFEST_HOME }}/{{ role_path|basename }}"
     state:  "directory"
     owner:  "dd-agent"
