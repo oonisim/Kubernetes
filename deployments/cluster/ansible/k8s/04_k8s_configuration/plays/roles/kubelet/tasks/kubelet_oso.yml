@@ -1,0 +1,33 @@
+#--------------------------------------------------------------------------------
+# Configure kubelet parameters.
+# - Resource reservation for kubelet/system
+# - Limit number of pods to be deployed on a node.
+# - Expose cadvisor port
+#
+# [Note]
+# Ansible blockinfile wipes out updates done by pervious blockinfile.
+# Hence including cAdvisor port here too.
+#--------------------------------------------------------------------------------
+- name: "Update {{ KUBELET_CONFIG_FILE }} to set resource limits."
+  blockinfile:
+    path: "{{ KUBELET_CONFIG_FILE }}"
+    insertafter: '^kubeletArguments:.*$'
+    block: |2
+        # Set resource reservation and limits
+        kube-reserved:
+        - "cpu=150m,memory=256Mi"
+        # system-reserved = system reservation + eviction memory threshold.
+        # 3.5/admin_guide/out_of_resource_handling.html
+        system-reserved:
+        - "cpu=150m,memory=512Mi"
+        eviction-soft:
+        - memory.available<256Mi
+        eviction-soft-grace-period:
+        - memory.available=30s
+        max-pods:
+        - "18"
+        # Enable dd-agent access to cAdvisor
+        cadvisor-port:
+        - "4194"
+    backup:   "yes"
+  notify: "restart_openshift_node"

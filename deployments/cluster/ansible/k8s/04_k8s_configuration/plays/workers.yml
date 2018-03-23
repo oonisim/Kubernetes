@@ -1,0 +1,22 @@
+- name: "K8s configurations for worker nodes"
+  hosts: workers
+  any_errors_fatal: true
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - kubelet
+  #--------------------------------------------------------------------------------
+  # Ansible has serious bug of handler not triggered.
+  # https://github.com/ansible/ansible/issues/20603
+  #  - import_tasks: handlers/restart_datadogs.yml
+  #  - import_tasks: handlers/restart_k8s.yml
+  #--------------------------------------------------------------------------------
+  handlers:
+    - name: "restart k8s services"
+      service:
+        name:     "{{ item }}"
+        state:    "restarted"
+        enabled:  "yes"
+      with_items: "{{ K8S_COMMON_SERVICES }}"
+      listen: "restart_k8s"

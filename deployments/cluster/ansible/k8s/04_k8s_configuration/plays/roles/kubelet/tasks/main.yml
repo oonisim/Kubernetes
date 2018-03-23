@@ -1,0 +1,6 @@
+- import_tasks: kubelet_oso.yml
+  when: DISTRIBUTION == DISTRIBUTION_OSE or DISTRIBUTION == DISTRIBUTION_OSO
+
+- import_tasks: kubelet_k8s.yml
+  when: DISTRIBUTION == DISTRIBUTION_K8S
+

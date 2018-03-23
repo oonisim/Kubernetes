@@ -1,0 +1,14 @@
+#--------------------------------------------------------------------------------
+# Enable/Update Kubelet cAdvisor port.
+#--------------------------------------------------------------------------------
+- name: "Update {{ KUBELET_CONFIG_FILE }} to set cAdvisor port."
+  lineinfile:
+    path:         "{{ KUBELET_CONFIG_FILE }}"
+    regexp:       '^Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port=(.+)"\s*$'
+    line:         'Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port={{ CADVISOR_PORT }}"'
+    insertbefore: '^ExecStart=$'
+    backup:   "yes"
+  notify: "restart_k8s"
+
+- name: "Force systemd to reread configs (2.4 and above)"
+  systemd: daemon_reload=yes
