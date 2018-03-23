@@ -1,24 +1,128 @@
 K8S deployment with kubeadm using Ansible
 =========
-
 Build a latest Kubernetes (K8S) non-HA cluster in AWS (CentOS) using kubeadm to explore K8S. There are multiple K8S/AWS deployment tools (kops, rancher, etc) and kubeadm is not yet production ready tool but it will be the one.
 
-Requirements
+Supported Environment
 ------------
+CentOS
+RHEL
+(Not yet Ubuntu/Debian)
 
-* Servers provisioned with their hostnames and static IP addresses set.
+
+Prerequisites
+------------
+### Target Nodes
+* A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
+Use this user as K8S_ADMIN in the configurations (below).
+
+### Ansible Master
+* On Ansible master, ssh-agent or .ssh/config is configured to be able to SSH into the targets without providing pass phrase.
+
+### AWS
+AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variable have been set to those of the AWS account user to use.
+
+### Datadog (optional)
+DATADOG_API_KEY environment variable has been set to the Datadog account API_KEY.
+
+Configurations
+
 * k8s/deploy/02_os/roles/hosts/files/hosts has been provided with those IP and hostnames.
-* K8S_ADMIN user has been created who can sudo without password.
 * k8s/conf/ansible/inventories/dev/group_vars/all/{env.yml and server.yml} have been configured.
 * k8s/conf/ansible/inventories/dev/inventory/hosts inventory has been configured.
-
-AWS
 ------------
-AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variable have been set.
 
-Datadog
+Structure
 ------------
-DATADOG_API_KEY environment variable has been set.
+
+```
+├── ansible
+│   ├── aws
+│   │   ├── ec2
+│   │   │   ├── creation        <----- Create/setup AWS
+│   │   │   └── operations      <----- Operate AWS
+│   │   ├── conductor.sh
+│   │   ├── player.sh
+│   │   └── utilities
+│   ├── k8s
+│   │   ├── 01_prerequisite     <----- Pre-requisites to run Ansible e.g. Python requirements.
+│   │   │   ├── plays           <----- Ansible playbooks
+│   │   │   └── scripts         <----- Script to execute playbooks.
+│   │   ├── 02_os               <----- OS level setup
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── 03_k8s              <----- K8S deployment
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── 10_monitor          <----- Datadog deployment
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── 20_applications     <----- K8S applicaiton deployments
+│   │   │   ├── plays
+│   │   │   └── scripts
+│   │   ├── _utility.sh
+│   │   ├── conductor.sh
+│   │   └── player.sh
+│   ├── run_aws.sh
+│   └── run_k8s.sh
+├── conf
+│   ├── ansible
+│   │   ├── ansible.cfg
+│   │   ├── callbacks
+│   │   ├── inventories
+│   │   └── vaultpass.encrypted
+│   └── keys
+└── tools
+```
+
+
+Preparation
+------------
+
+#### Environment variables
+
+Set the variables appropriately before execution.
+
+```
+AWS_SECRET_ACCESS_KEY
+AWS_ACCESS_KEY_ID
+DATADOG_API_KEY
+```
+
+#### AWS
+Test the AWS connectivity with Ansible dynamic inventory.
+```
+conf/ansible/inventories/aws/inventory/ec2.py
+```
+
+#### SSH
+Make sure SSH can login to the target boxes during the executions.
+```
+eval $(ssh-agent)
+ssh-add <key>
+```
+
+Execution
+------------
+
+#### AWS creation/setup
+```
+ansible/aws/ec2/creation/scripts/main.sh
+```
+
+#### K8S deployment
+
+Module
+1. 01_prerequisite
+2. 02_os
+3. 03_k8s
+4. 10_monitor
+5. 20_applications
+
+```
+ansible/k8s/<module>/scripts/main.sh
+```
+
+---
 
 References
 ------------
@@ -144,94 +248,3 @@ sudo systemctl stop firewalld
 ```
 
 ---
-
-Structure
-------------
-
-```
-├── ansible
-│   ├── aws
-│   │   ├── ec2
-│   │   │   ├── creation        <----- Create/setup AWS
-│   │   │   └── operations      <----- Operate AWS
-│   │   ├── conductor.sh
-│   │   ├── player.sh
-│   │   └── utilities
-│   ├── k8s
-│   │   ├── 01_prerequisite     <----- Pre-requisites to run Ansible e.g. Python requirements.
-│   │   │   ├── plays           <----- Ansible playbooks
-│   │   │   └── scripts         <----- Script to execute playbooks.
-│   │   ├── 02_os               <----- OS level setup
-│   │   │   ├── plays
-│   │   │   └── scripts
-│   │   ├── 03_k8s              <----- K8S deployment
-│   │   │   ├── plays
-│   │   │   └── scripts
-│   │   ├── 10_monitor          <----- Datadog deployment
-│   │   │   ├── plays
-│   │   │   └── scripts
-│   │   ├── 20_applications     <----- K8S applicaiton deployments
-│   │   │   ├── plays
-│   │   │   └── scripts
-│   │   ├── _utility.sh
-│   │   ├── conductor.sh
-│   │   └── player.sh
-│   ├── run_aws.sh
-│   └── run_k8s.sh
-├── conf
-│   ├── ansible
-│   │   ├── ansible.cfg
-│   │   ├── callbacks
-│   │   ├── inventories
-│   │   └── vaultpass.encrypted
-│   └── keys
-└── tools
-```
-
-
-Preparation
-------------
-
-#### Environment variables
-
-Set the variables appropriately before execution.
-
-```
-AWS_SECRET_ACCESS_KEY
-AWS_ACCESS_KEY_ID
-DATADOG_API_KEY
-```
-
-#### AWS
-Test the AWS connectivity with Ansible dynamic inventory.
-```
-conf/ansible/inventories/aws/inventory/ec2.py
-```
-
-#### SSH
-Make sure SSH can login to the target boxes during the executions.
-```
-eval $(ssh-agent)
-ssh-add <key>
-```
-
-Execution
-------------
-
-#### AWS creation/setup
-```
-ansible/aws/ec2/creation/scripts/main.sh
-```
-
-#### K8S deployment
-
-Module
-1. 01_prerequisite
-2. 02_os
-3. 03_k8s
-4. 10_monitor
-5. 20_applications
-
-```
-ansible/k8s/<module>/scripts/main.sh
-```
