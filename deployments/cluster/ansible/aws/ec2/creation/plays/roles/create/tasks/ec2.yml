@@ -31,7 +31,7 @@
     group:            "{{ ec2_security_group }}"
     vpc_subnet_id:    "{{ k8s_public_subnet.subnet.id }}"
     instance_type:    "{{ ec2_instance_type }}"
-    assign_public_ip: "no"
+    assign_public_ip: "yes"
     count:            "{{ server_count }}"
     volumes:          "{{ ec2_volumes }}"
     # Use environment variables

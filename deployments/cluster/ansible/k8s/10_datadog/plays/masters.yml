@@ -1,0 +1,32 @@
+---
+- name: "K8s installation for master"
+  hosts: masters
+  any_errors_fatal: true
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - dd_installation
+    - dd_service_account
+    - kube_state_metrics
+    - dd_etcd
+    - dd_k8s_master
+    #- dd_daemonset
+    - dd_kubernetes
+    - dd_kubernetes_state
+    #- dd_application
+    #- fluentd_elasticsearch
+
+  #--------------------------------------------------------------------------------
+  # Ansible has serious bug of handler not triggered.
+  # https://github.com/ansible/ansible/issues/20603
+  #  - import_tasks: handlers/restart_datadogs.yml
+  #--------------------------------------------------------------------------------
+  handlers:
+    - name: "restart datadog agent"
+      shell: |
+        /etc/init.d/datadog-agent restart
+        sleep 15
+        /etc/init.d/datadog-agent info -v
+      register: ddagent_restart
+      listen: "restart_datadog"

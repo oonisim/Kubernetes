@@ -86,13 +86,15 @@ Environment variable DATADOG_API_KEY set to the Datadog account API_KEY.
 * A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
 Use this user as K8S_ADMIN in the configurations (below).
 
----
 
 Configurations
 ------------
 
 #### Environment parameters
-Parameters for an environment are all isolated in group_vars of the environment inventory.
+Parameters for an environment are all isolated in group_vars of the environment inventory. Go through the group_vars files to set values.
+Especially these value must be the one in the target environment, unless run_k8s.sh script is used.
+* K8S_MASTER_HOSTNAME
+* K8S_MASTER_NODE_IP
 
 ```
 .
@@ -120,7 +122,6 @@ Parameters for an environment are all isolated in group_vars of the environment 
 Execution (AWS envioronment creation)
 ------------
 
-#### AWS creation/setup
 ```
 ├── ansible
 │   ├── aws
@@ -138,8 +139,6 @@ Execution (AWS envioronment creation)
 Execution (K8S cluster setup)
 ------------
 
-
-#### K8S deployment
 ```
 .
 ├── ansible

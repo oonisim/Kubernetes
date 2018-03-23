@@ -1,6 +1,0 @@
-- import_tasks: cadvisor_ose.yml
-  when: DISTRIBUTION == DISTRIBUTION_OSE
-
-- import_tasks: cadvisor_k8s.yml
-  when: DISTRIBUTION == DISTRIBUTION_K8S
-

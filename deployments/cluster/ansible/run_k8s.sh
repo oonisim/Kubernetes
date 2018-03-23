@@ -47,9 +47,6 @@ HOSTFILE="${DIR}/k8s/02_os/plays/roles/hosts/files/hosts"
 ./aws/ec2/operations/scripts/generate_hosts_file.sh ${ENVIRONMENT} ${HOSTFILE}
 
 
-echo "Ready?"
-read GO
-
 for module in $(find ./k8s -type d -maxdepth 1 -mindepth 1)
 do
     ${module}/scripts/main.sh \

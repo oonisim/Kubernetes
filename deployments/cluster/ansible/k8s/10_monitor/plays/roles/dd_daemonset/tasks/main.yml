@@ -1,9 +1,0 @@
-- import_tasks: clean.yml
-  run_once: true
-- import_tasks: k8s_secret_certificates.yml
-  run_once: true
-- import_tasks: dd_agent_sa.yml
-  run_once: true
-- import_tasks: dd_agent_rbac.yml
-  run_once: true
-- import_tasks: dd_agent_ds.yml

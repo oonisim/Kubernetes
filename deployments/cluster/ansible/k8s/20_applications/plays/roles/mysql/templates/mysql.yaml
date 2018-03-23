@@ -12,10 +12,10 @@ apiVersion: storage.k8s.io/v1
 metadata:
   name: mysql-sc
   labels:
-    az: "{{ ec2_zone }}"
+    az: "{{ aws_zone }}"
 provisioner: kubernetes.io/aws-ebs
 parameters:
-  zones: "{{ ec2_zone }}"
+  zones: "{{ aws_zone }}"
   #--------------------------------------------------------------------------------
   # Volume Type
   # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html
