@@ -3,7 +3,7 @@ kind: ClusterRoleBinding
 metadata:
   name: kube-state-metrics
 roleRef:
-#  apiGroup: rbac.authorization.k8s.io
+  apiGroup: {{ RBAC_API_GROUP }}
   kind: ClusterRole
   name: kube-state-metrics
 subjects:
