@@ -4,8 +4,8 @@ Build a latest Kubernetes (K8S) non-HA cluster in AWS (CentOS) using kubeadm to 
 
 Supported Environment
 ------------
-CentOS
-RHEL
+* CentOS
+* RHEL
 
 Structure
 ------------
@@ -57,15 +57,10 @@ Structure
 │   └── run_k8s.sh          <---- One-off script to run all K8S setup
 └── tools
 ```
-
-
+---
 
 Preparations
 ------------
-### Target Nodes
-* A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
-Use this user as K8S_ADMIN in the configurations (below).
-
 ### Ansible Master
 
 #### SSH
@@ -86,6 +81,12 @@ conf/ansible/inventories/aws/inventory/ec2.py
 
 #### Datadog (optional)
 Environment variable DATADOG_API_KEY set to the Datadog account API_KEY.
+
+### Target Nodes
+* A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
+Use this user as K8S_ADMIN in the configurations (below).
+
+---
 
 Configurations
 ------------
@@ -115,8 +116,6 @@ Parameters for an environment are all isolated in group_vars of the environment 
 │                   ├── ec2.py
 │                   └── hosts           <----- Get target node(s) using tag values set upon creating AWS env with script
 ```
-
----
 
 Execution (AWS envioronment creation)
 ------------
