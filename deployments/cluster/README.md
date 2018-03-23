@@ -14,11 +14,11 @@ Structure
 .
 ├── README.md
 ├── conf
-│   └── ansible
+│   └── ansible <---- Ansible configuration directory
 │      ├── ansible.cfg
 │      └── inventories
 │           └── aws
-│               ├── group_vars
+│               ├── group_vars  <---- Ansible parameters are isolated in group_vars for each environment
 │               │   ├── all
 │               │   │   ├── env.yml
 │               │   │   ├── server.yml
@@ -32,7 +32,7 @@ Structure
 │                   ├── ec2.ini
 │                   ├── ec2.py
 │                   └── hosts
-├── ansible                       <---- Ansible Playbooks
+├── ansible  <---- Ansible Playbooks directory
 │   ├── aws
 │   │   ├── ec2
 │   │   │   ├── creation
@@ -57,6 +57,7 @@ Structure
 │   └── run_k8s.sh          <---- One-off script to run all K8S setup
 └── tools
 ```
+
 
 
 Preparations
@@ -112,10 +113,10 @@ Parameters for an environment are all isolated in group_vars of the environment 
 │               └── inventory
 │                   ├── ec2.ini
 │                   ├── ec2.py
-│                   └── hosts           <----- EC2 dynamic inventory selects target hosts with tag values (set upon creating AWS env with script)
+│                   └── hosts           <----- Get target node(s) using tag values set upon creating AWS env with script
 ```
 
-
+---
 
 Execution (AWS envioronment creation)
 ------------
@@ -157,18 +158,19 @@ Execution (K8S cluster setup)
 ```
 
 Alternatively, to run each module one by one.
-1. 01_prerequisite
-2. 02_os
-3. 03_k8s
-3. 03_k8s
-4. 04_k8s_configuration
-5. 10_datadog
-6. 20_applications
 
 ```
 ansible/k8s/<module>/scripts/main.sh or
 ansible/k8s/<module>/scripts/main.sh aws <ansible remote_user>
 ```
+
+Modules:
+1. 01_prerequisite
+2. 02_os
+3. 03_k8s_setup
+4. 04_k8s_configuration
+5. 10_datadog
+6. 20_applications
 
 ---
 
