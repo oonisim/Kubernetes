@@ -11,7 +11,7 @@
     - user
     - helm
 
-- name: "K8s add-on setup with "{{ K8S_ADMIN}}" user"
+- name: "K8s add-on setup with {{ K8S_ADMIN}} user"
   hosts: masters
   any_errors_fatal: true
   become: yes
