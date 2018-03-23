@@ -9,6 +9,5 @@ ENVIRONMENT=aws
 REMOTE_USER=centos
 
 /Users/maonishi/home/repositories/git/k8s/installation/maintenance.sh
-#./aws/ec2/creation/scripts/main.sh ${ENVIRONMENT} master
 ./aws/ec2/creation/scripts/main.sh ${ENVIRONMENT} ${DIR}
 

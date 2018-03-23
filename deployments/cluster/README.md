@@ -6,30 +6,6 @@ Supported Environment
 ------------
 CentOS
 RHEL
-(Not yet Ubuntu/Debian)
-
-
-Prerequisites
-------------
-#### Target Nodes
-* A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
-Use this user as K8S_ADMIN in the configurations (below).
-
-#### Ansible Master
-* On Ansible master, ssh-agent or .ssh/config is configured to be able to SSH into the targets without providing pass phrase.
-
-#### AWS
-AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variable have been set to those of the AWS account user to use.
-
-#### Datadog (optional)
-DATADOG_API_KEY environment variable has been set to the Datadog account API_KEY.
-
-Configurations
-------------
-
-* k8s/deploy/02_os/roles/hosts/files/hosts has been provided with those IP and hostnames.
-* k8s/conf/ansible/inventories/dev/group_vars/all/{env.yml and server.yml} have been configured.
-* k8s/conf/ansible/inventories/dev/inventory/hosts inventory has been configured.
 
 Structure
 ------------
@@ -37,6 +13,115 @@ Structure
 ```
 .
 ├── README.md
+├── conf
+│   └── ansible
+│      ├── ansible.cfg
+│      └── inventories
+│           └── aws
+│               ├── group_vars
+│               │   ├── all
+│               │   │   ├── env.yml
+│               │   │   ├── server.yml
+│               │   │   ├── aws.yml
+│               │   │   ├── kube_state_metrics.yml
+│               │   │   ├── helm.yml
+│               │   │   └── datadog.yml
+│               │   ├── masters
+│               │   └── workers
+│               └── inventory
+│                   ├── ec2.ini
+│                   ├── ec2.py
+│                   └── hosts
+├── ansible                       <---- Ansible Playbooks
+│   ├── aws
+│   │   ├── ec2
+│   │   │   ├── creation
+│   │   │   └── operations
+│   │   ├── conductor.sh
+│   │   └── player.sh
+│   ├── k8s
+│   │   ├── 01_prerequisite       <----- Prerequisite module (each module has the same structure)
+│   │   │   ├── Readme.md         <----- Readme for the module
+│   │   │   ├── plays
+│   │   │   │   ├── roles
+│   │   │   │   └── site.yml
+│   │   │   └── scripts
+│   │   ├── 02_os                 <----- OS module e.g. settup sysctl parameters.
+│   │   ├── 03_k8s_setup          <----- K8S cluster setup module
+│   │   ├── 04_k8s_configuration  <----- K8S configuration module
+│   │   ├── 10_datadog            <----- Datadog monitoring module
+│   │   ├── 20_applications       <----- Sample application module
+│   │   ├── conductor.sh          <----- Utility conducting playbook execution.
+│   │   └── player.sh             <----- Run ansible-playbook
+│   ├── run_aws.sh          <---- One-off script to run all AWS setup
+│   └── run_k8s.sh          <---- One-off script to run all K8S setup
+└── tools
+```
+
+
+Preparations
+------------
+### Target Nodes
+* A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
+Use this user as K8S_ADMIN in the configurations (below).
+
+### Ansible Master
+
+#### SSH
+* On Ansible master, ssh-agent and/or .ssh/config is configured to be able to SSH into the targets without providing pass phrase.
+
+```
+eval $(ssh-agent)
+ssh-add <key>
+ssh <ansible remote_user>@<target> sudo ls  # no prompt for asking password
+```
+
+#### AWS
+Environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY set to those of the AWS account user to use and test the connectivity with Ansible dynamic inventory.
+
+```
+conf/ansible/inventories/aws/inventory/ec2.py
+```
+
+#### Datadog (optional)
+Environment variable DATADOG_API_KEY set to the Datadog account API_KEY.
+
+Configurations
+------------
+
+#### Environment parameters
+Parameters for an environment are all isolated in group_vars of the environment inventory.
+
+```
+.
+├── conf
+│   └── ansible
+│      ├── ansible.cfg
+│      └── inventories
+│           └── aws
+│               ├── group_vars
+│               │   ├── all             <----- Configure properties in the 'all' group vars.
+│               │   │   ├── env.yml
+│               │   │   ├── server.yml
+│               │   │   ├── aws.yml
+│               │   │   ├── kube_state_metrics.yml
+│               │   │   ├── helm.yml
+│               │   │   └── datadog.yml
+│               │   ├── masters
+│               │   └── workers
+│               └── inventory
+│                   ├── ec2.ini
+│                   ├── ec2.py
+│                   └── hosts           <----- EC2 dynamic inventory selects target hosts with tag values (set upon creating AWS env with script)
+```
+
+
+
+Execution (AWS envioronment creation)
+------------
+
+#### AWS creation/setup
+```
 ├── ansible
 │   ├── aws
 │   │   ├── ec2
@@ -45,125 +130,47 @@ Structure
 │   │   ├── conductor.sh
 │   │   └── player.sh
 │   ├── k8s
+│   ├── run_aws.sh   <----- Run this script
+│   └── run_k8s.sh
+```
+
+
+Execution (K8S cluster setup)
+------------
+
+
+#### K8S deployment
+```
+.
+├── ansible
+│   ├── k8s
 │   │   ├── 01_prerequisite
-│   │   │   ├── Readme.md
-│   │   │   ├── plays
-│   │   │   └── scripts
 │   │   ├── 02_os
-│   │   │   ├── Readme.md
-│   │   │   ├── plays
-│   │   │   └── scripts
 │   │   ├── 03_k8s_setup
-│   │   │   ├── Readme.md
-│   │   │   ├── plays
-│   │   │   └── scripts
 │   │   ├── 04_k8s_configuration
-│   │   │   ├── plays
-│   │   │   └── scripts
 │   │   ├── 10_datadog
-│   │   │   ├── Readme.md
-│   │   │   ├── diff.sh
-│   │   │   ├── plays
-│   │   │   └── scripts
 │   │   ├── 20_applications
-│   │   │   ├── Readme.md
-│   │   │   ├── plays
-│   │   │   └── scripts
 │   │   ├── conductor.sh
 │   │   └── player.sh
 │   ├── run_aws.sh
-│   └── run_k8s.sh
-├── conf
-│   ├── ansible
-│   │   ├── ansible.cfg
-│   │   ├── callbacks
-│   │   ├── inventories
-│   │   │   └── aws
-│   │   └── vaultpass.encrypted
-│   ├── env
-│   │   └── aws
-│   │       ├── env.properties
-│   │       ├── server.properties
-│   │       └── templates.list
-│   └── keys
-│       └── public.pem
-└── tools
-    ├── decrypt.sh
-    ├── encrypt.sh
-    ├── gen_encryption_key.sh
-    ├── parse_yml.sh
-    └── sshsetup.sh
-
+│   └── run_k8s.sh   <----- Run this script
 ```
 
-
-Preparation
-------------
-
-#### Environment variables
-
-Set the variables appropriately before execution.
-
-```
-AWS_SECRET_ACCESS_KEY
-AWS_ACCESS_KEY_ID
-DATADOG_API_KEY
-```
-
-#### AWS
-Test the AWS connectivity with Ansible dynamic inventory.
-```
-conf/ansible/inventories/aws/inventory/ec2.py
-```
-
-#### SSH
-Make sure SSH can login to the target boxes during the executions.
-```
-eval $(ssh-agent)
-ssh-add <key>
-```
-
-Execution
-------------
-
-#### AWS creation/setup
-```
-ansible/aws/ec2/creation/scripts/main.sh
-```
-
-#### K8S deployment
-
-Module
+Alternatively, to run each module one by one.
 1. 01_prerequisite
 2. 02_os
 3. 03_k8s
-4. 10_monitor
-5. 20_applications
+3. 03_k8s
+4. 04_k8s_configuration
+5. 10_datadog
+6. 20_applications
 
 ```
-ansible/k8s/<module>/scripts/main.sh
+ansible/k8s/<module>/scripts/main.sh or
+ansible/k8s/<module>/scripts/main.sh aws <ansible remote_user>
 ```
 
 ---
-
-References
-------------
-
-#### kubeadm
-
-* [Using kubeadm to Create a Cluster](https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/)
-* [Installing kubeadm](https://kubernetes.io/docs/setup/independent/install-kubeadm/)
-* [Troubleshooting kubeadm](https://kubernetes.io/docs/setup/independent/troubleshooting-kubeadm/)
-* [GitHub Kubeadm Design Documents](https://github.com/kubernetes/kubeadm/tree/master/docs/design)
-* [How kubeadm Initializes Your Kubernetes Master](https://www.ianlewis.org/en/how-kubeadm-initializes-your-kubernetes-master)
-
-#### Cloud providor
-
-* [Creating a Custom Cluster from Scratch - Cloud Provider](https://kubernetes.io/docs/getting-started-guides/scratch/#cloud-provider)
-> Kubernetes has the concept of a Cloud Provider, which is a module which provides an interface for managing TCP Load Balancers, Nodes (Instances) and Networking Routes.
-
-* [Rancher Docs - Kubernetes - Cloud Providers](http://rancher.com/docs/rancher/latest/en/kubernetes/providers/)
-* [K8S AWS Cloud Provider Notes](https://docs.google.com/document/d/17d4qinC_HnIwrK0GHnRlD1FKkTNdN__VO4TH9-EzbIY/edit)
 
 Considerations
 ------------
@@ -270,3 +277,22 @@ sudo systemctl stop firewalld
 ```
 
 ---
+
+References
+------------
+
+#### kubeadm
+
+* [Using kubeadm to Create a Cluster](https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/)
+* [Installing kubeadm](https://kubernetes.io/docs/setup/independent/install-kubeadm/)
+* [Troubleshooting kubeadm](https://kubernetes.io/docs/setup/independent/troubleshooting-kubeadm/)
+* [GitHub Kubeadm Design Documents](https://github.com/kubernetes/kubeadm/tree/master/docs/design)
+* [How kubeadm Initializes Your Kubernetes Master](https://www.ianlewis.org/en/how-kubeadm-initializes-your-kubernetes-master)
+
+#### Cloud providor
+
+* [Creating a Custom Cluster from Scratch - Cloud Provider](https://kubernetes.io/docs/getting-started-guides/scratch/#cloud-provider)
+> Kubernetes has the concept of a Cloud Provider, which is a module which provides an interface for managing TCP Load Balancers, Nodes (Instances) and Networking Routes.
+
+* [Rancher Docs - Kubernetes - Cloud Providers](http://rancher.com/docs/rancher/latest/en/kubernetes/providers/)
+* [K8S AWS Cloud Provider Notes](https://docs.google.com/document/d/17d4qinC_HnIwrK0GHnRlD1FKkTNdN__VO4TH9-EzbIY/edit)
