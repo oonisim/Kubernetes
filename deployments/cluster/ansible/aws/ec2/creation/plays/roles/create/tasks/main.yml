@@ -3,4 +3,3 @@
   when: NODE_TYPE == NODE_TYPE_MASTER
 
 - import_tasks: ec2.yml
-- import_tasks: list.yml

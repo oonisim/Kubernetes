@@ -4,4 +4,4 @@
   vars:
     NODE_TYPE: "{{ NODE_TYPE_MASTER }}"
   roles:
-    - site.ec2_create
+    - create
