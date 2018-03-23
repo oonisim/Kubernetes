@@ -4,7 +4,7 @@ metadata:
   name: kube-state-metrics
   namespace: {{ KUBESTATE_NAMESPACE }}
 roleRef:
-  apiGroup: v1
+  apiGroup: {{ RBAC_API_GROUP }}
   kind: Role
   name: kube-state-metrics-resizer
 subjects:

@@ -43,10 +43,13 @@
 
 #--------------------------------------------------------------------------------
 # Install Flannel
+# https://github.com/coreos/flannel/issues/870
 #--------------------------------------------------------------------------------
 - name: "Pod network init ({{ CNI_PROVIDER_FLANNEL }})"
   shell: |
-    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.9.0/Documentation/kube-flannel.yml
+    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+#    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.9.0/Documentation/kube-flannel.yml
+#    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
   args:
     executable: /bin/bash
   when: K8S_NETWORK_PROVIDER == CNI_PROVIDER_FLANNEL

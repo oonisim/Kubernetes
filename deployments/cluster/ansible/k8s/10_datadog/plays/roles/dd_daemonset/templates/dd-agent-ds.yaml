@@ -70,6 +70,9 @@ spec:
           - containerPort: 8125
             name: dogstatsdport
             protocol: UDP
+          - containerPort: 8126
+            name: traceport
+            protocol: TCP
 {% if DISTRIBUTION == DISTRIBUTION_OSE %}
         #--------------------------------------------------------------------------------
         # Just temporal trick to get around SELinux preventing access.
@@ -91,9 +94,19 @@ spec:
             value: "yes"
           - name: SD_BACKEND
             value: docker
-          - name: DD_PROCESS_AGENT_ENABLED
+          - name: DD_COLLECT_KUBERNETES_EVENTS
             value: "true"
-            #value: "false"
+          - name: DD_LEADER_ELECTION
+            value: "true"
+          - name: DD_PROCESS_AGENT_ENABLED
+            #value: "true"
+            value: "false"
+{% if DISTRIBUTION == DISTRIBUTION_OSE %}
+          - name: DD_KUBERNETES_KUBELET_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+{% endif %}
 {% if DISTRIBUTION == DISTRIBUTION_OSE %}
           #--------------------------------------------------------------------------------
           # This resolved the issue of not being able to talk to kubelet.

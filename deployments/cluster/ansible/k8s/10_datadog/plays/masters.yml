@@ -11,9 +11,9 @@
     - kube_state_metrics
     - dd_etcd
     - dd_k8s_master
-    #- dd_daemonset
-    - dd_kubernetes
-    - dd_kubernetes_state
+    - dd_daemonset
+    #- dd_kubernetes
+    #- dd_kubernetes_state
     #- dd_application
     #- fluentd_elasticsearch
 

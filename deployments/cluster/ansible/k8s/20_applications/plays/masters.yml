@@ -5,7 +5,7 @@
   become_user: "{{ K8S_ADMIN }}"
   roles:
     - guestbook
- #   - kuard
+ #     - kuard
  #   - mysql
  #   - mongo
  #   - mysql_statefulset

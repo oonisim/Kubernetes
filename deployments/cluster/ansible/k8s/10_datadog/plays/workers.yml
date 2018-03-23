@@ -6,7 +6,7 @@
   become_method: sudo
   roles:
     - dd_installation
-    - dd_kubernetes
+    #- dd_kubernetes
 
   #--------------------------------------------------------------------------------
   # Ansible has serious bug of handler not triggered.

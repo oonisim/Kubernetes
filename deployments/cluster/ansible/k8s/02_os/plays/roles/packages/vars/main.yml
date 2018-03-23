@@ -1,0 +1,11 @@
+packages:
+  - jq
+  - telnet
+  - wget
+  - curl
+  - htop
+  - atop
+  - libcgroup-tools
+  - nethogs
+  - iftop
+  - bind-utils
