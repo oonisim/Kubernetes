@@ -1,4 +1,4 @@
-- name: K8s configurations for master
+- name: K8s setup for master
   hosts: masters
   any_errors_fatal: true
   become: yes
@@ -9,8 +9,9 @@
     - master
     - pki
     - user
+    - helm
 
-- name: K8s dashboard
+- name: "K8s add-on setup with "{{ K8S_ADMIN}}" user"
   hosts: masters
   any_errors_fatal: true
   become: yes
@@ -18,4 +19,3 @@
   become_method: sudo
   roles:
     - dashboard
-    - helm

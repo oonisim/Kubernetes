@@ -3,7 +3,7 @@
 # Not using export KUBECONFIG=/etc/kubernetes/admin.conf
 # /etc/kubernetes/admin.conf is created at kubeadm init.
 #--------------------------------------------------------------------------------
-- name: "Remove ~/.kube"
+- name: "Remove ~{ K8S_ADMIN }}/.kube"
   file:
     path:  "~{{ K8S_ADMIN }}/.kube"
     state: "absent"

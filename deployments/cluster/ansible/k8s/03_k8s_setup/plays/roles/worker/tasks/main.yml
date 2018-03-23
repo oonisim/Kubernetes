@@ -1,5 +1,6 @@
 #--------------------------------------------------------------------------------
 # Join cluster
+# Bootstrap token and hash is saved in dummy K8S_TOKEN_HOLDER host as hostvar.
 #--------------------------------------------------------------------------------
 #- name: "K8S_TOKEN"
 #  debug:

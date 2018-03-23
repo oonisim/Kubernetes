@@ -1,0 +1,36 @@
+#--------------------------------------------------------------------------------
+# Install Helm
+# https://docs.helm.sh/using_helm/#from-script
+# https://docs.bitnami.com/kubernetes/get-started-kubernetes/#k8_tutorial_step4
+#--------------------------------------------------------------------------------
+- name: Download helm
+  get_url:
+#    url: https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get
+    url:    "{{ HELM_DOWNLOAD_URL }}"
+    dest:   "~{{ K8S_ADMIN }}/{{ HELM_PACKAGE }}"
+    owner:  "{{ K8S_ADMIN }}"
+    group:  "{{ K8S_GROUP }}"
+    force_basic_auth: yes
+
+- name: Unarchive a file that is already on the remote machine
+  unarchive:
+    src:    "~{{ K8S_ADMIN }}/{{ HELM_PACKAGE }}"
+    dest:   "~{{ K8S_ADMIN }}"
+    remote_src: yes
+
+- name: "Install helm"
+  shell: "{{ item }}"
+  args:
+      chdir: "~{{ K8S_ADMIN }}"
+  with_items:
+#    - PATH=${PATH}:/usr/local/bin ./helm_install.sh
+#    - PATH=${PATH}:/usr/local/bin  /usr/local/bin/helm init --upgrade
+    - mv {{ ENV_OS }}-{{ ENV_ARCH}}/helm /usr/local/bin/helm
+    - KUBECONFIG='{{ KUBECONFIG_ADMIN }}' /usr/local/bin/helm init --upgrade
+
+- name: "Verify helm"
+  become: true
+  become_user: "{{ K8S_ADMIN }}"
+  shell: |
+    kubectl --namespace kube-system get pods | grep tiller
+

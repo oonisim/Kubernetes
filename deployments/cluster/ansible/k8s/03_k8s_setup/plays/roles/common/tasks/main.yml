@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------------
-# Install Pckages
+# Install Packages
 #--------------------------------------------------------------------------------
 - include_vars: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
 - include: "{{ ansible_distribution }}_{{ ansible_distribution_major_version}}.yml"
@@ -16,14 +16,14 @@
     state:    "restarted"
     enabled:  "yes"
 
-- name: "Get the cgroup docker"
+- name: "Get the cgroup of docker"
   shell: |
     docker info 2>/dev/null | sed -n 's/Cgroup Driver: \(.*\)/\1/p'
   register: docker_cgroup
 
 - name:  "Docker Cgroup"
   debug:
-    msg: "{{ docker_cgroup }}"
+    msg: "Docker cgroup is {{ docker_cgroup }}"
 
 - name: "Update {{ KUBELET_CONFIG_FILE }} to set kubelet cgroup."
   replace:
