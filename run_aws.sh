@@ -8,7 +8,7 @@ cd ${DIR}
 ENVIRONMENT=aws
 REMOTE_USER=centos
 
-./maintenance.sh
+maintenance.sh
 
 #--------------------------------------------------------------------------------
 # Setup AWS and create master file which holds master node data in ${DIR}

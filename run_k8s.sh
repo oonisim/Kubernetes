@@ -32,7 +32,7 @@ REMOTE_USER=centos
 #HOSTFILE="${DIR}/k8s/02_os/plays/roles/hosts/files/hosts"
 #./aws/ec2/operations/scripts/generate_hosts_file.sh ${ENVIRONMENT} ${HOSTFILE}
 
-./maintenance.sh
+maintenance.sh
 for module in $(find ./cluster/ansible/k8s -type d -maxdepth 1 -mindepth 1)
 do
     ${module}/scripts/main.sh \
