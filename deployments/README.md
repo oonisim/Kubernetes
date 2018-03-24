@@ -173,12 +173,21 @@ Execution
 ```
 
 ### Module by module
-Alternatively, to run each module one by one.
-```
-ansible/aws/ec2/creation/scripts/main.sh
+Alternatively, to run each K8S module one by one.
 ```
 ansible/k8s/<module>/scripts/main.sh or
 ansible/k8s/<module>/scripts/main.sh aws <ansible remote_user>
+```
+Modules:
+```
+├── 01_prerequisite      <---- Module to setup Ansible pre-requisites
+├── 02_os                <---- Module to setup OS to install K8S
+├── 03_k8s_setup         <---- Module to setup K8S cluster
+├── 04_k8s_configuration <---- Module to configure K8S after setup
+├── 10_datadog           <---- Module to setup datadog monitoring (option)
+├── 20_applications      <---- Module for sample applications
+├── conductor.sh         <---- Script to conduct playbook executions
+└── player.sh            <---- Playbook player
 ```
 
 ---
