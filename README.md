@@ -66,7 +66,7 @@ Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_se
 
 Preparations
 ------------
-### AWS
+### AWS Account and keypair
 
 Create an account or use the existing one. Get the AWS access key id/secret, and the AWS SSH keypair PEM file at hand. Create an EC2 instance to test the SSH login with the PEM.
 
@@ -82,7 +82,13 @@ Install Ansible and Boto to be able to run AWS ansible. If the host is RHEL/Cent
 ```
 
 #### AWS
-Install AWS CLI and set environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. Test the Ansible dynamic inventory.
+Install AWS CLI and set environment variables. Test the Ansible dynamic inventory.
+
+Environment variables:
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_ACCESS_KEY
+* EC2_KEYPAIR_NAME
+* REMOTE_USER        <---- AWS EC2 user (centos for CentOs, ec2-user for RHEL)
 
 ```
 conf/ansible/inventories/aws/inventory/ec2.py
@@ -93,8 +99,8 @@ Configure ssh-agent and/or .ssh/config with the AWS SSH PEM to be able to SSH in
 
 ```
 eval $(ssh-agent)
-ssh-add <key>
-ssh <ansible remote_user>@<target> sudo ls  # no prompt for asking password
+ssh-add <AWS SSH pem>
+ssh REMOTE_USER@<EC2 server> sudo ls  # no prompt for asking password
 
 ```
 
@@ -104,10 +110,10 @@ Create an Datadog trial account and set environment variable DATADOG_API_KEY to 
 Let's try
 ------------
 
-Set the AWS SSH keypair name to use to **ec2_key_name** in aws.yml and run ./run.sh. Somehow if it does not work, go to Configurations.
-
+Set TARGET_INVENTORY=aws and run ./run.sh. The variable identifies the Ansible inventory **aws**  (same with ENV_ID) to use.
 
 ---
+
 Configurations
 ------------
 
@@ -115,9 +121,13 @@ Configurations
 
 Parameters for an environment are all isolated in group_vars of the environment inventory. Go through the group_vars files to set values.
 
-#### ec2_key_name
+#### ENV_ID
 
-Set the AWS SSH keypair name to use to **ec2_key_name** in aws.yml.
+ENV_ID in env.yml.
+
+#### EC2_KEYPAIR_NAME
+
+Set the AWS SSH keypair name to use to **EC2_KEYPAIR_NAME** as enviornment variable or in aws.yml.
 
 #### Master node data
 Especially these value must be from the master node instance. If run_aws.sh is used, it creates the master file including them and run_k8s.sh can use them. Otherwise set them in env.yml.
@@ -125,7 +135,7 @@ Especially these value must be from the master node instance. If run_aws.sh is u
 * K8S_MASTER_HOSTNAME
 * K8S_MASTER_NODE_IP
 
-#### Ansibe remote_user
+#### REMOTE_USER
 Use the default Linux account (centos for CentOS EC2) that can sudo without password as the Ansible remote_user to run the playbooks If using another account, configure it and make sure it can sudo without password and configure .ssh/config.
 
 #### K8S_ADMIN and LINUX_USERS
@@ -158,9 +168,14 @@ Executions
 ------------
 Make sure the environment variables are set.
 
+Environment variables:
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
+* EC2_KEYPAIR_NAME
+* REMOTE_USER
 * DATADOG_API_KEY (optional)
+
+Set TARGET_INVENTORY=aws variable which identifies the Ansible inventory **aws**  (same with ENV_ID) to use.
 
 ### AWS
 
