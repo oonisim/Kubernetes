@@ -183,6 +183,22 @@ ansible/k8s/<module>/scripts/main.sh aws <ansible remote_user>
 
 ---
 
+Test
+------------
+Using Guestbook appliaction.
+
+The Ansible playbook of 20_applications shows the EXTERNAL-IP for the guestbook application.
+
+```
+"msg": [
+    "NAME       TYPE           CLUSTER-IP     EXTERNAL-IP                                                               PORT(S)        AGE       SELECTOR",
+    "frontend   LoadBalancer   10.104.46.88   aa8886b1f2f0f11e8a4ec06dfe7a500c-1694803115.us-west-1.elb.amazonaws.com   80:32110/TCP   43s       app=guestbook,tier=frontend"
+]
+```
+Access http://<EXTERNAL-IP> and it should show the page:
+
+![Guest Book](https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png)
+
 Considerations
 ------------
 

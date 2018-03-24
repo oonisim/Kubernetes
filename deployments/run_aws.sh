@@ -14,5 +14,5 @@ REMOTE_USER=centos
 # Setup AWS and create master file which holds master node data in ${DIR}
 # The master file is then used by run_k8s.sh
 #--------------------------------------------------------------------------------
-deployments/cluster/ansible/aws/ec2/creation/scripts/main.sh ${ENVIRONMENT} ${DIR}
+cluster/ansible/aws/ec2/creation/scripts/main.sh ${ENVIRONMENT} ${DIR}
 

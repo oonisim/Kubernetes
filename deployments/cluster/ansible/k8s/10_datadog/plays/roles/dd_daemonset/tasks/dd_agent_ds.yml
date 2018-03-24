@@ -12,6 +12,7 @@
 # dd-agent deployment
 #--------------------------------------------------------------------------------
 - name: "mkdir {{ DATADOG_MANIFEST_HOME }}/{{ role_path|basename }} if not exist"
+  file:
     path:   "{{ DATADOG_MANIFEST_HOME }}/{{ role_path|basename }}"
     state:  "directory"
     owner:  "dd-agent"

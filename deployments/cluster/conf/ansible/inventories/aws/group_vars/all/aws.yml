@@ -2,7 +2,9 @@
 # IAM
 # AWS cloud provider requires IAM role to execute AWS operations.
 #--------------------------------------------------------------------------------
-CLOUD_PROVIDER_ROLE_NAME: "K8S_AWS_ROLE"
+#CLOUD_PROVIDER_ROLE_NAME: "K8S_AWS_ROLE"
+CLOUD_PROVIDER_ROLE_NAME: "K8S_CLOUD_PROVIDER_ROLE"
+CLOUD_PROVIDER_POLICY_NAME: "K8S_CLOUD_PROVIDER_POLICY"
 
 #--------------------------------------------------------------------------------
 # EC2

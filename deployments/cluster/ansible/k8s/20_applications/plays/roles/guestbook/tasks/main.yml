@@ -2,14 +2,74 @@
 # Guestbook application.
 # https://gist.github.com/johnaxel/ac45db708b74bd00343c874b9a9b99dd
 #--------------------------------------------------------------------------------
-- name: "Place guestbook manifest"
-  copy:
-    src: "{{ role_path }}/files/guestbook-deployment-full.yaml"
-    dest: "~{{ K8S_ADMIN }}/guestbook-deployment-full.yaml"
-    owner: "{{ K8S_ADMIN }}"
-    mode: 0644
-
-- name: "Deploy dd-guestbook application"
+- name: "Delete previous deployments if exists"
   shell: |
-    kubectl apply -f ~{{ K8S_ADMIN }}/guestbook-deployment-full.yaml
+    {{ CTL }} delete -f guestbook-deployment-full.yaml && rm -rf guestbook-deployment-full.yaml
+  args:
+    chdir: "{{ application_home }}"
+  ignore_errors: true
 
+- name: "Create {{ application_home }}"
+  file:
+    path:     "{{ application_home }}"
+    state:    "directory"
+    group:    "{{ K8S_GROUP }}"
+    mode:     "0750"
+
+- name: "Wait {{ application }} application terminated"
+  shell: |
+    while [ "$(kubectl get pod -n {{ item.namespace }} --no-headers --selector=app={{ item.name }} | awk '{ print $3 }')" == "Terminating" ]
+    do
+      kubectl get pod -n {{ item.namespace }}
+      sleep 3
+    done
+  ignore_errors: true
+  with_items: "{{ apps }}"
+
+#--------------------------------------------------------------------------------
+# Deploy application
+#--------------------------------------------------------------------------------
+- name: "Copy {{ application }}"
+  template:
+    src:      "{{ role_path }}/templates/{{ item.manifest }}"
+    dest:     "{{ application_home }}/{{ item.manifest }}"
+    owner:    "{{ K8S_ADMIN }}"
+    mode:     0644
+  with_items: "{{ apps }}"
+
+- name: "Deploy {{ application }} application"
+  shell: |
+    kubectl apply -f {{ item.manifest }}
+  args:
+    chdir: "{{ application_home }}"
+  with_items: "{{ apps }}"
+
+- name: "Wait for {{ application }} ready"
+  shell: |
+    while [ "$(kubectl get pod -n {{ item.namespace }} --no-headers --selector=app={{ item.name }} | head -n 1 | awk '{ print $3 }')" != "Running" ]
+    do kubectl get pod -n {{ item.namespace }} --selector=app={{ item.name }} | tee -a {{ item.name }}.pod.log
+      sleep 3
+    done
+  args:
+    chdir: "{{ application_home }}"
+  with_items: "{{ apps }}"
+
+- name: "Wait for svc ready"
+  shell: |
+    while [ "$(kubectl get svc -n {{ item.namespace }} --no-headers --selector=app={{ item.name }} | head -n 1 | awk '{ print $4 }')" == "<pending>" ]
+    do kubectl get svc -n {{ item.namespace }} --selector=app={{ item.name }} | tee -a {{ item.name }}.svc.log
+      sleep 3
+    done
+  args:
+    chdir: "{{ application_home }}"
+  with_items: "{{ apps }}"
+
+- name: "Get service"
+  shell: |
+    kubectl get svc -n {{ item.namespace }} --selector=app={{ item.name }} -o wide
+  with_items: "{{ apps }}"
+  register: svc
+
+- debug:
+    msg: "{{ item.stdout_lines }}"
+  with_items: "{{ svc.results}}"
