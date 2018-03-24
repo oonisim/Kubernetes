@@ -91,6 +91,7 @@ Environment variable DATADOG_API_KEY set to the Datadog account API_KEY.
 * A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
 Use this user as K8S_ADMIN in the configurations (below).
 
+---
 
 Configurations
 ------------
@@ -125,7 +126,7 @@ Especially these value must be the one in the target environment, unless run_k8s
 │                   └── hosts           <---- Get target node(s) using tag values (set upon creating AWS env)
 ```
 
-Execution
+Executions
 ------------
 Make sure the environment variables are set.
 
