@@ -103,8 +103,10 @@ Especially these value must be from the master node instance. If run_aws.sh is u
 * K8S_MASTER_NODE_IP
 
 #### Ansibe remote_user
-Use the default Linux account (centos for CentOS EC2) that can sudo without password as the Ansible remote_user to run the playbooks and set it to K8S_ADMIN parameter in server.yml. K8S_ADMIN is used to run the K8S operations once K8S is up. If using another account, configure it and make sure it can sudo without password and configure .ssh/config.
+Use the default Linux account (centos for CentOS EC2) that can sudo without password as the Ansible remote_user to run the playbooks If using another account, configure it and make sure it can sudo without password and configure .ssh/config.
 
+#### K8S_ADMIN and LINUX_USERS
+K8S_ADMIN user runs K8S operations once K8S is up. Set a name to be used as an account to K8S_ADMIN in server.yml. The account is creaated via LINUX_USERS in server.yml, and set the password in the corresponding field.  Use [mkpasswd as explained in Ansible document](http://docs.ansible.com/ansible/latest/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module).
 
 ```
 .
