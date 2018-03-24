@@ -10,52 +10,69 @@ Supported Environment
 Structure
 ------------
 
+### SSH
+```
+[home]
+└── .ssh
+     ├── <aws>.pem
+     └── config
+```
+
+### Ansible
+
 ```
 .
-├── README.md
-├── conf
-│   └── ansible <---- Ansible configuration directory
-│      ├── ansible.cfg
-│      └── inventories
-│           └── aws
-│               ├── group_vars  <---- Ansible parameters are isolated in group_vars for each environment
-│               │   ├── all
-│               │   │   ├── env.yml
-│               │   │   ├── server.yml
-│               │   │   ├── aws.yml
-│               │   │   ├── kube_state_metrics.yml
-│               │   │   ├── helm.yml
-│               │   │   └── datadog.yml
-│               │   ├── masters
-│               │   └── workers
-│               └── inventory
-│                   ├── ec2.ini
-│                   ├── ec2.py
-│                   └── hosts
-├── ansible  <---- Ansible Playbooks directory
-│   ├── aws
-│   │   ├── ec2
-│   │   │   ├── creation
-│   │   │   └── operations
-│   │   ├── conductor.sh
-│   │   └── player.sh
-│   ├── k8s
-│   │   ├── 01_prerequisite       <----- Prerequisite module (each module has the same structure)
-│   │   │   ├── Readme.md         <----- Readme for the module
-│   │   │   ├── plays
-│   │   │   │   ├── roles
-│   │   │   │   └── site.yml
-│   │   │   └── scripts
-│   │   ├── 02_os                 <----- OS module e.g. settup sysctl parameters.
-│   │   ├── 03_k8s_setup          <----- K8S cluster setup module
-│   │   ├── 04_k8s_configuration  <----- K8S configuration module
-│   │   ├── 10_datadog            <----- Datadog monitoring module
-│   │   ├── 20_applications       <----- Sample application module
-│   │   ├── conductor.sh          <----- Utility conducting playbook execution.
-│   │   └── player.sh             <----- Run ansible-playbook
-│   ├── run_aws.sh          <---- One-off script to run all AWS setup
-│   └── run_k8s.sh          <---- One-off script to run all K8S setup
-└── tools
+├── cluster
+│   ├── ansible     <---- Ansible playbook directory
+│   │   ├── aws
+│   │   │   ├── ec2
+│   │   │   │   ├── creation         <---- Module to setup AWS
+│   │   │   │   └── operations
+│   │   │   ├── conductor.sh
+│   │   │   └── player.sh
+│   │   └── k8s
+│   │       ├── 01_prerequisite      <---- Module to setup Ansible pre-requisites
+│   │       ├── 02_os                <---- Module to setup OS to install K8S
+│   │       ├── 03_k8s_setup         <---- Module to setup K8S cluster
+│   │       ├── 04_k8s_configuration <---- Module to configure K8S after setup
+│   │       ├── 10_datadog           <---- Module to setup datadog monitoring (option)
+│   │       ├── 20_applications      <---- Module for sample applications
+│   │       ├── conductor.sh         <---- Script to conduct playbook executions
+│   │       └── player.sh            <---- Playbook player
+│   ├── conf
+│   │   └── ansible          <---- Ansible configuration directory
+│   │       ├── ansible.cfg  <---- Configurations for all plays
+│   │       └── inventories  <---- Each environment has it inventory here
+│   │           ├── aws      <---- AWS/K8S environment inventory
+│   │           └── template
+│   └── tools
+├── master      <---- K8S master node data for run_k8s.s created by run_aws.sh or update manally.
+├── run.sh      <---- Run run_aws.sh and run_k8s.sh
+├── run_aws.sh  <---- Run AWS setups
+└── run_k8s.sh  <---- Run K8S setups
+```
+
+### Module
+
+Each module e.g. 03_k8s_setup for K8S setup has the same structure.
+```
+03_k8s_setup/
+├── Readme.md        <---- description of the module
+├── plays
+│   ├── roles
+│   │   ├── common
+│   │   ├── dashboard
+│   │   ├── helm
+│   │   ├── master
+│   │   ├── pki
+│   │   ├── posttasks
+│   │   ├── user
+│   │   └── worker
+│   ├── site.yml
+│   ├── masters.yml  <--- playbook for master node
+│   └── workers.yml  <--- playbook for worker nodes
+└── scripts
+    └── main.sh  <---- script to run the module
 ```
 ---
 
@@ -104,41 +121,41 @@ Especially these value must be the one in the target environment, unless run_k8s
 │      └── inventories
 │           └── aws
 │               ├── group_vars
-│               │   ├── all             <----- Configure properties in the 'all' group vars.
-│               │   │   ├── env.yml
-│               │   │   ├── server.yml
-│               │   │   ├── aws.yml
+│               │   ├── all             <---- Configure properties in the 'all' group vars
+│               │   │   ├── env.yml     <---- Enviornment parameters e.g. ENV_ID to identify and to tag configuration items
+│               │   │   ├── server.yml  <---- Server parameters e.g. location of kubelet configuration file
+│               │   │   ├── aws.yml     <---- e.g. AMI image id, volume type, etc
+│               │   │   ├── helm.yml    <---- Helm package manager specifics
 │               │   │   ├── kube_state_metrics.yml
-│               │   │   ├── helm.yml
 │               │   │   └── datadog.yml
-│               │   ├── masters
+│               │   ├── masters         <---- For master group specifics
 │               │   └── workers
 │               └── inventory
 │                   ├── ec2.ini
 │                   ├── ec2.py
-│                   └── hosts           <----- Get target node(s) using tag values set upon creating AWS env with script
+│                   └── hosts           <---- Get target node(s) using tag values (set upon creating AWS env)
 ```
 
-Execution (AWS envioronment creation)
+Execution
 ------------
 
+### AWS
+
 ```
-├── ansible
-│   ├── aws
-│   │   ├── ec2
-│   │   │   ├── creation
-│   │   │   └── operations
-│   │   ├── conductor.sh
-│   │   └── player.sh
-│   ├── k8s
-│   ├── run_aws.sh   <----- Run this script
-│   └── run_k8s.sh
+├── cluster
+│   ├── README.md
+│   ├── ansible
+│   ├── conf
+│   └── tools
+├── maintenance.sh
+├── master
+├── run.sh
+├── run_aws.sh   <--- Run this script.
+└── run_k8s.sh
 ```
 
 
-Execution (K8S cluster setup)
-------------
-
+### K8S
 ```
 .
 ├── ansible
@@ -152,23 +169,17 @@ Execution (K8S cluster setup)
 │   │   ├── conductor.sh
 │   │   └── player.sh
 │   ├── run_aws.sh
-│   └── run_k8s.sh   <----- Run this script
+│   └── run_k8s.sh   <---- Run this script
 ```
 
+### Module by module
 Alternatively, to run each module one by one.
-
+```
+ansible/aws/ec2/creation/scripts/main.sh
 ```
 ansible/k8s/<module>/scripts/main.sh or
 ansible/k8s/<module>/scripts/main.sh aws <ansible remote_user>
 ```
-
-Modules:
-1. 01_prerequisite
-2. 02_os
-3. 03_k8s_setup
-4. 04_k8s_configuration
-5. 10_datadog
-6. 20_applications
 
 ---
 
@@ -211,7 +222,7 @@ data:
     }
   net-conf.json: |
     {
-      "Network": "10.244.0.0/16",  <-----
+      "Network": "10.244.0.0/16",  <----
       "Backend": {
         "Type": "vxlan"
       }
@@ -236,8 +247,8 @@ apiVersion: kubeadm.k8s.io/v1alpha1
 api:
   advertiseAddress: {{ APISERVER_ADVERTISE_ADDRESS }}
 networking:
-  podSubnet:        {{ K8S_SERVICE_ADDRESSES }}       <----- POD network CIDR 10.244.0.0/16
-cloudProvider:      {{ K8S_CLOUD_PROVIDER }}          <----- aws
+  podSubnet:        {{ K8S_SERVICE_ADDRESSES }}       <---- POD network CIDR 10.244.0.0/16
+cloudProvider:      {{ K8S_CLOUD_PROVIDER }}          <---- aws
 ```
 
 #### Cleanup / Reinstallation
