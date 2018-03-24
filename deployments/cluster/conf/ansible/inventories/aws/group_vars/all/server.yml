@@ -97,15 +97,16 @@ K8S_PACKAGES_PREREQUISITES_REMOVE: "{{ K8S_PACKAGES_PREREQUISITES }}"
 K8S_VERSION_186: 1.8.6-0
 K8S_VERSION_190: 1.9.0-0
 K8S_VERSION_191: 1.9.1-0
-K8S_VERSION: "{{ K8S_VERSION_190 }}"
+K8S_VERSION_191: 1.9.6-0
+K8S_VERSION: "{{ K8S_VERSION_196 }}"
 
 K8S_PACKAGES:
-#  - kubeadm
-#  - kubelet
-#  - kubectl
-  - "kubeadm-{{ K8S_VERSION }}.x86_64"
-  - "kubectl-{{ K8S_VERSION }}.x86_64"
-  - "kubelet-{{ K8S_VERSION }}.x86_64"
+  - kubeadm
+  - kubelet
+  - kubectl
+#  - "kubeadm-{{ K8S_VERSION }}.x86_64"
+#  - "kubectl-{{ K8S_VERSION }}.x86_64"
+#  - "kubelet-{{ K8S_VERSION }}.x86_64"
   - flannel
   - docker
 
