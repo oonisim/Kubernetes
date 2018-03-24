@@ -1,24 +1,13 @@
 K8S deployment with kubeadm using Ansible
 =========
-Build a latest Kubernetes (K8S) non-HA cluster in AWS (CentOS) using kubeadm to explore K8S. There are multiple K8S/AWS deployment tools (kops, rancher, etc) and kubeadm is not yet production ready tool but it will be the one.
-
-Supported Environment
-------------
-* CentOS
-* RHEL
+Build a latest Kubernetes (K8S) non-HA cluster in AWS (CentOS or RHEL) using kubeadm to explore K8S. There are multiple K8S/AWS deployment tools (kops, rancher, etc) and kubeadm is not yet production ready tool but it will be the one.
 
 Structure
 ------------
 
-### SSH
-```
-[home]
-└── .ssh
-     ├── <aws>.pem
-     └── config
-```
+### Overview
 
-### Ansible
+Ansible playbooks and inventories under this Git repository location.
 
 ```
 .
@@ -52,27 +41,26 @@ Structure
 └── run_k8s.sh  <---- Run K8S setups
 ```
 
-### Module
+### Module and structure
 
-Each module e.g. 03_k8s_setup for K8S setup has the same structure.
+Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_setup is to setup a K8S cluster. Each module directory has the same structure.
 ```
 03_k8s_setup/
-├── Readme.md        <---- description of the module
+├── Readme.md         <---- description of the module
 ├── plays
 │   ├── roles
-│   │   ├── common
-│   │   ├── dashboard
-│   │   ├── helm
-│   │   ├── master
-│   │   ├── pki
-│   │   ├── posttasks
-│   │   ├── user
-│   │   └── worker
+│   │   ├── common    <---- Common tasks both for master and workers
+│   │   ├── master    <---- Setup master node
+│   │   ├── pki       <---- Patch up K8S CA on master
+│   │   ├── user      <---- Setup K8S administrative users on master
+│   │   ├── worker    <---- Setup worker nodes
+│   │   ├── helm      <---- Setup Helm package manager
+│   │   └── dashboard <---- Setup K8S Dashboard
 │   ├── site.yml
-│   ├── masters.yml  <--- playbook for master node
-│   └── workers.yml  <--- playbook for worker nodes
+│   ├── masters.yml   <--- playbook for master node
+│   └── workers.yml   <--- playbook for worker nodes
 └── scripts
-    └── main.sh  <---- script to run the module
+    └── main.sh       <---- script to run the module (each module can run separately/repeatedly)
 ```
 ---
 
@@ -107,11 +95,12 @@ Use this user as K8S_ADMIN in the configurations (below).
 Configurations
 ------------
 
-#### Environment parameters
+### Environment parameters
 Parameters for an environment are all isolated in group_vars of the environment inventory. Go through the group_vars files to set values.
 Especially these value must be the one in the target environment, unless run_k8s.sh script is used.
 * K8S_MASTER_HOSTNAME
 * K8S_MASTER_NODE_IP
+
 
 ```
 .
@@ -138,15 +127,16 @@ Especially these value must be the one in the target environment, unless run_k8s
 
 Execution
 ------------
+Make sure the environment variables are set.
+
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_ACCESS_KEY
+* DATADOG_API_KEY (optional)
 
 ### AWS
 
 ```
 ├── cluster
-│   ├── README.md
-│   ├── ansible
-│   ├── conf
-│   └── tools
 ├── maintenance.sh
 ├── master
 ├── run.sh
@@ -156,29 +146,24 @@ Execution
 
 
 ### K8S
+In the directory, run run_k8s.sh. If DATADOG_API_KEY is not set, the 10_datadog module will cause errors but will continue.
+
 ```
-.
-├── ansible
-│   ├── k8s
-│   │   ├── 01_prerequisite
-│   │   ├── 02_os
-│   │   ├── 03_k8s_setup
-│   │   ├── 04_k8s_configuration
-│   │   ├── 10_datadog
-│   │   ├── 20_applications
-│   │   ├── conductor.sh
-│   │   └── player.sh
-│   ├── run_aws.sh
-│   └── run_k8s.sh   <---- Run this script
+├── cluster
+├── maintenance.sh
+├── master       <---- Make sure master node information is set in this file
+├── run.sh
+├── run_aws.sh
+└── run_k8s.sh   <---- Run this script
 ```
 
-### Module by module
-Alternatively, to run each K8S module one by one.
+Alternatively, run each module one by one, and skip 10_datadog if not using.
 ```
-ansible/k8s/<module>/scripts/main.sh or
+pushd ansible/k8s/<module>/scripts && main.sh or
 ansible/k8s/<module>/scripts/main.sh aws <ansible remote_user>
 ```
-Modules:
+
+Modules are:
 ```
 ├── 01_prerequisite      <---- Module to setup Ansible pre-requisites
 ├── 02_os                <---- Module to setup OS to install K8S
@@ -190,7 +175,6 @@ Modules:
 └── player.sh            <---- Playbook player
 ```
 
----
 
 Test
 ------------
@@ -207,6 +191,8 @@ The Ansible playbook of 20_applications shows the EXTERNAL-IP for the guestbook 
 Access http://<EXTERNAL-IP> and it should show the page:
 
 ![Guest Book](https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png)
+
+---
 
 Considerations
 ------------
