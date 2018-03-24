@@ -66,7 +66,7 @@ Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_se
 
 Preparations
 ------------
-### Ansible Master
+### On Ansible master host
 
 #### SSH
 * On Ansible master, ssh-agent and/or .ssh/config is configured to be able to SSH into the targets without providing pass phrase.
@@ -87,20 +87,23 @@ conf/ansible/inventories/aws/inventory/ec2.py
 #### Datadog (optional)
 Environment variable DATADOG_API_KEY set to the Datadog account API_KEY.
 
-### Target Nodes
-* A Linux account is configured that can sudo without password. The account is used as the ansible remote_user to run the playbook tasks.
-Use this user as K8S_ADMIN in the configurations (below).
-
 ---
 
 Configurations
 ------------
 
 ### Environment parameters
+
 Parameters for an environment are all isolated in group_vars of the environment inventory. Go through the group_vars files to set values.
-Especially these value must be the one in the target environment, unless run_k8s.sh script is used.
+
+#### Master node data
+Especially these value must be from the master node instance. If run_aws.sh is used, it creates the master file including them and run_k8s.sh can use them. Otherwise set them in env.yml.
+
 * K8S_MASTER_HOSTNAME
 * K8S_MASTER_NODE_IP
+
+#### Ansibe remote_user
+Use the default Linux account (centos for CentOS EC2) that can sudo without password as the Ansible remote_user to run the playbooks and set it to K8S_ADMIN parameter in server.yml. K8S_ADMIN is used to run the K8S operations once K8S is up. If using another account, configure it and make sure it can sudo without password and configure .ssh/config.
 
 
 ```
@@ -123,7 +126,7 @@ Especially these value must be the one in the target environment, unless run_k8s
 │               └── inventory
 │                   ├── ec2.ini
 │                   ├── ec2.py
-│                   └── hosts           <---- Get target node(s) using tag values (set upon creating AWS env)
+│                   └── hosts           <---- Target node(s) using tag values (set upon creating AWS env)
 ```
 
 Executions
