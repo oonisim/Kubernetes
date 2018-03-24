@@ -66,35 +66,58 @@ Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_se
 
 Preparations
 ------------
+### AWS
+
+Create an account or use the existing one. Get the AWS access key id/secret, and the AWS SSH keypair PEM file at hand. Create an EC2 instance to test the SSH login with the PEM.
+
+
 ### On Ansible master host
 
-#### SSH
-* On Ansible master, ssh-agent and/or .ssh/config is configured to be able to SSH into the targets without providing pass phrase.
+
+#### Ansible
+Install Ansible and Boto to be able to run AWS ansible. If the host is RHEL/CentOS/Ubuntu, run below will do the job.
 
 ```
-eval $(ssh-agent)
-ssh-add <key>
-ssh <ansible remote_user>@<target> sudo ls  # no prompt for asking password
+(cd ./cluster/ansible/k8s/01_prerequisite/scripts && setup.sh)
 ```
 
 #### AWS
-Environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY set to those of the AWS account user to use and test the connectivity with Ansible dynamic inventory.
+Install AWS CLI and set environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. Test the Ansible dynamic inventory.
 
 ```
 conf/ansible/inventories/aws/inventory/ec2.py
 ```
 
+#### SSH
+Configure ssh-agent and/or .ssh/config with the AWS SSH PEM to be able to SSH into the targets without providing pass phrase. Create a test EC2 instance and test to make sure.
+
+```
+eval $(ssh-agent)
+ssh-add <key>
+ssh <ansible remote_user>@<target> sudo ls  # no prompt for asking password
+
+```
+
 #### Datadog (optional)
-Environment variable DATADOG_API_KEY set to the Datadog account API_KEY.
+Create an Datadog trial account and set environment variable DATADOG_API_KEY to that Datadog [account API_KEY](https://app.datadoghq.com/account/settings#api).
+
+Let's try
+------------
+
+Set the AWS SSH keypair name to use to **ec2_key_name** in aws.yml and run ./run.sh. Somehow if it does not work, go to Configurations.
+
 
 ---
-
 Configurations
 ------------
 
 ### Environment parameters
 
 Parameters for an environment are all isolated in group_vars of the environment inventory. Go through the group_vars files to set values.
+
+#### ec2_key_name
+
+Set the AWS SSH keypair name to use to **ec2_key_name** in aws.yml.
 
 #### Master node data
 Especially these value must be from the master node instance. If run_aws.sh is used, it creates the master file including them and run_k8s.sh can use them. Otherwise set them in env.yml.
