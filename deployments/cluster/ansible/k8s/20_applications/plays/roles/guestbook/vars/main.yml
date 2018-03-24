@@ -1,0 +1,7 @@
+application:      "{{role_path|basename}}"
+application_home: "~{{ K8S_ADMIN }}/apps/{{ application }}"
+apps:
+  - name:       "guestbook"
+    namespace:  "default"
+    pod_port:   80
+    manifest:   "guestbook-deployment-full.yaml"
