@@ -202,8 +202,7 @@ Access http://EXTERNAL-IP and it should show the page:
 
 Login to the Datadog and check its [dashboard](https://app.datadoghq.com/screen/integration/86/kubernetes?tv_mode=false).
 
-![Datadog K8S](https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png = 250 x 250)
-
+<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png" width="250">
 
 ---
 
