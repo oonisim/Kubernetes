@@ -196,7 +196,7 @@ The Ansible playbook of 20_applications shows the EXTERNAL-IP for the guestbook 
 ```
 Access http://EXTERNAL-IP and it should show the page:
 
-![Guest Book](https://github.com/oonisim/Kubernetes/blob/master/Images/app.gustbook.png)
+<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/app.gustbook.png" width="250">
 
 #### Datadog
 
