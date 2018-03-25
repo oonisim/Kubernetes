@@ -2,6 +2,9 @@ K8S deployment with kubeadm using Ansible
 =========
 Build a latest Kubernetes (K8S) non-HA cluster in AWS (CentOS or RHEL) using kubeadm to explore K8S. There are multiple K8S/AWS deployment tools (kops, rancher, etc) and kubeadm is not yet production ready tool but it will be the one.
 
+<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/AWS.png">
+
+
 Structure
 ------------
 
@@ -11,7 +14,7 @@ Ansible playbooks and inventories under this Git repository location.
 
 ```
 .
-├── cluster
+├── cluster         <---- K8S cluster installation home (AWS+K8S)
 │   ├── ansible     <---- Ansible playbook directory
 │   │   ├── aws
 │   │   │   ├── ec2
@@ -41,9 +44,9 @@ Ansible playbooks and inventories under this Git repository location.
 └── run_k8s.sh  <---- Run K8S setups
 ```
 
-### Module and structure
+#### Module and structure
 
-Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_setup is to setup a K8S cluster. Each module directory has the same structure.
+Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_setup is to setup a K8S cluster. Each module directory has the same structure having Readme, Plays, and Scripts.
 ```
 03_k8s_setup/
 ├── Readme.md         <---- description of the module
@@ -66,71 +69,73 @@ Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_se
 
 Preparations
 ------------
-### AWS Account and keypair
+### For AWS
 
-Create an account or use the existing one. Get the AWS access key id/secret, and the AWS SSH keypair PEM file at hand. Create an EC2 instance to test the SSH login with the PEM.
-
+Have AWS access key_id, secret, and an AWS SSH keypair PEM file. MFA should not be used (or make sure to establish a session before execution).
 
 ### On Ansible master host
 
+#### AWS CLI
+Install AWS CLI and set the environment variables.
 
-#### Ansible
-Install Ansible and Boto to be able to run AWS ansible. If the host is RHEL/CentOS/Ubuntu, run below will do the job.
-
-```
-(cd ./cluster/ansible/k8s/01_prerequisite/scripts && setup.sh)
-```
-
-#### AWS
-Install AWS CLI and set environment variables. Test the Ansible dynamic inventory.
-
-Environment variables:
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
 * EC2_KEYPAIR_NAME
 * REMOTE_USER        <---- AWS EC2 user (centos for CentOs, ec2-user for RHEL)
 
+#### Ansible
+Have Ansible (2.4.1 or later) and Boto to be able to run AWS ansible features. If the host is RHEL/CentOS/Ubuntu, run below will do the job.
+
+```
+(cd ./cluster/ansible/k8s/01_prerequisite/scripts && setup.sh)
+```
+
+Test the Ansible dynamic inventory.
 ```
 conf/ansible/inventories/aws/inventory/ec2.py
 ```
 
 #### SSH
-Configure ssh-agent and/or .ssh/config with the AWS SSH PEM to be able to SSH into the targets without providing pass phrase. Create a test EC2 instance and test to make sure.
+Configure ssh-agent and/or .ssh/config with the AWS SSH PEM to be able to SSH into the targets without providing pass phrase. Create a test EC2 instance and test.
 
 ```
 eval $(ssh-agent)
 ssh-add <AWS SSH pem>
-ssh REMOTE_USER@<EC2 server> sudo ls  # no prompt for asking password
+ssh ${REMOTE_USER}@<EC2 server> sudo ls  # no prompt for asking password
 
 ```
 
 #### Datadog (optional)
-Create an Datadog trial account and set environment variable DATADOG_API_KEY to that Datadog [account API_KEY](https://app.datadoghq.com/account/settings#api).
+Create an Datadog trial account and set environment variable DATADOG_API_KEY to that Datadog [account API_KEY](https://app.datadoghq.com/account/settings#api). The Datadog module setup the monitors/metrics to verify that K8S is up and running, and can start monitoring and setup alerts right away.
+
+#### Ansible inventory
+
+et environment (or shell) variable TARGET_INVENTORY=aws. The variable identifies the Ansible inventory **aws**  (same with ENV_ID in env.yml) to use.
 
 Let's try
 ------------
 
-Set TARGET_INVENTORY=aws and run ./run.sh. The variable identifies the Ansible inventory **aws**  (same with ENV_ID) to use.
+Run ./run.sh to run all at once, or go through the configurations and executions step by step below.
 
 ---
 
 Configurations
 ------------
 
-### Environment parameters
+### Parameters
 
 Parameters for an environment are all isolated in group_vars of the environment inventory. Go through the group_vars files to set values.
 
-#### ENV_ID
-
-ENV_ID in env.yml.
-
 #### EC2_KEYPAIR_NAME
 
-Set the AWS SSH keypair name to use to **EC2_KEYPAIR_NAME** as enviornment variable or in aws.yml.
+Set the AWS SSH keypair name to use to **EC2_KEYPAIR_NAME** as an enviornment variable and/or in aws.yml.
 
-#### Master node data
-Especially these value must be from the master node instance. If run_aws.sh is used, it creates the master file including them and run_k8s.sh can use them. Otherwise set them in env.yml.
+#### ENV_ID
+
+ENV_ID in env.yml is used to tag the target environment and the tags are used to identify configuration items that belong to the enviornment, e.g. EC2 dynamic inventory hosts.
+
+#### Master node information
+Information of the master node instance. If run_aws.sh is used, it creates a file **master** which includs them and run_k8s.sh can use them. Otherwise set them in env.yml after having created the AWS instances.
 
 * K8S_MASTER_HOSTNAME
 * K8S_MASTER_NODE_IP
