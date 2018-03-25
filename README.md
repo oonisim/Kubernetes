@@ -311,12 +311,12 @@ data:
 Make sure to specify the correct IP. If to use hostname, make sure it will not be resolved to a NAT address in VM environments.
 
 #### AWS Cloud Provider
-Cloud provider needs to be specified to kubeadm at the cluster configuration. If not specified, it would require re-installing the cluster to use the feature (GitHub 57718).
+Cloud provider needs to be specified to kubeadm at the cluster configuration. If not specified, it would require re-installing the cluster to use the feature [GitHub 57718](https://github.com/kubernetes/kubernetes/issues/57718).
 
 ```
 kubeadm init --config kubeadm_config.yaml
 ```
-Instead of using --cloud-provider=aws to kubeadm, use kubeadm configuration. --cloud-provider=aws used to be used but there are several reports it causes issues and the kubeadm init documentation does not specify it although the manifest part shows it.
+Instead of using --cloud-provider=aws to kubeadm, use kubeadm configuration. --cloud-provider=aws used to work but there are several reports it causes issues and the kubeadm init documentation does not specify it although the manifest part shows it.
 
 ```
 kubeadm_config.yaml
@@ -330,8 +330,7 @@ cloudProvider:      {{ K8S_CLOUD_PROVIDER }}          <---- aws
 ```
 
 #### Cleanup / Reinstallation
-kubeadm reset does not clean up completely. Need to manually delete directories/files and Pod network interfaces.
-[Failed to setup network for pod \ using network plugins \"cni\": no IP addresses available in network: podnet; Skipping pod"](https://github.com/kubernetes/kubernetes/issues/39557)
+kubeadm reset does not clean up completely. Need to manually delete directories/files and Pod network interfaces. See [Failed to setup network for pod \ using network plugins \"cni\": no IP addresses available in network: podnet; Skipping pod"](https://github.com/kubernetes/kubernetes/issues/39557).
 
 ```
 rm -rf /var/lib/cni/
