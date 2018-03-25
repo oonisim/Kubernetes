@@ -120,7 +120,7 @@ Create a Datadog trial account and set the environment variable DATADOG_API_KEY 
 
 #### Ansible inventory
 
-et environment (or shell) variable TARGET_INVENTORY=aws. The variable identifies the Ansible inventory **aws**  (same with ENV_ID in env.yml) to use.
+Set environment (or shell) variable TARGET_INVENTORY=aws. The variable identifies the Ansible inventory **aws**  (same with ENV_ID in env.yml) to use.
 
 Let's try
 ------------
