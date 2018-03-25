@@ -41,7 +41,7 @@
     #--------------------------------------------------------------------------------
     # SSH key-pair name (Mandatory to be able to SSH login
     #--------------------------------------------------------------------------------
-    key_name:        "{{ ec2_key_name }}"
+    key_name:        "{{ EC2_KEYPAIR_NAME }}"
     wait: true
   register: ec2
 

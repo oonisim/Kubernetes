@@ -1,3 +1,4 @@
+# http://jeremievallee.com/2016/07/27/aws-vpc-ansible/
 # First task : creating the VPC.
 # We are using the variables set in the vars.yml file.
 # The module gives us back its result,
