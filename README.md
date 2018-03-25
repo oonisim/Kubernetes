@@ -257,7 +257,7 @@ Access ht<span>tp://</span>EXTERNAL-IP and it should show the page:
 
 Login to the Datadog and check its [dashboard](https://app.datadoghq.com/screen/integration/86/kubernetes?tv_mode=false). 10_datadog module has setup tests to verify K8S API server, etcd, kubelet. Datadog agent pods reports metrics from [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) pod in the cluster, and from cAdvisor via kubelet, hence the cluster health and events such as pod killed by OOM can be verified.
 
-<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png" width="400">
+<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png" width="600">
 
 ---
 
