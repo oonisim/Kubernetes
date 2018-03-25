@@ -1,16 +1,21 @@
 K8S deployment with kubeadm using Ansible
 =========
-Build a latest Kubernetes (K8S) non-HA cluster in AWS (CentOS or RHEL) using kubeadm to explore K8S. There are multiple K8S/AWS deployment tools (kops, rancher, etc) and kubeadm is not yet production ready tool but it will be the one.
+Build a latest Kubernetes (K8S) non-HA cluster in AWS (CentOS or RHEL) using kubeadm to explore K8S. There are multiple K8S/AWS deployment tools (kops, rancher, etc) and kubeadm is not yet production ready tool but it will be the one. Note that this is to explore K8S, hence basic security considerations.
+
+AWS Network Topology
+------------
+
+Simple 1 master + 2 workers (can be increased by a parameter) in a VPC subnet, to be created by the Ansible playbooks.
 
 <img src="https://github.com/oonisim/Kubernetes/blob/master/Images/AWS.png">
 
 
-Structure
+Repository Structure
 ------------
 
 ### Overview
 
-Ansible playbooks and inventories under this Git repository location.
+Ansible playbooks and inventories under the Git repository.
 
 ```
 .
@@ -87,10 +92,10 @@ Install AWS CLI and set the environment variables.
 Have Ansible (2.4.1 or later) and Boto to be able to run AWS ansible features. If the host is RHEL/CentOS/Ubuntu, run below will do the job.
 
 ```
-(cd ./cluster/ansible/k8s/01_prerequisite/scripts && setup.sh)
+(cd ./cluster/ansible/k8s/01_prerequisite/scripts && ./setup.sh)
 ```
 
-Test the Ansible dynamic inventory.
+Test the Ansible dynamic inventory script.
 ```
 conf/ansible/inventories/aws/inventory/ec2.py
 ```
@@ -106,7 +111,7 @@ ssh ${REMOTE_USER}@<EC2 server> sudo ls  # no prompt for asking password
 ```
 
 #### Datadog (optional)
-Create an Datadog trial account and set environment variable DATADOG_API_KEY to that Datadog [account API_KEY](https://app.datadoghq.com/account/settings#api). The Datadog module setup the monitors/metrics to verify that K8S is up and running, and can start monitoring and setup alerts right away.
+Create a Datadog trial account and set the environment variable DATADOG_API_KEY to the [Datadog account API_KEY](https://app.datadoghq.com/account/settings#api). The Datadog module setups the monitors/metrics to verify that K8S is up and running, and can start monitoring and setup alerts right away.
 
 #### Ansible inventory
 
@@ -115,7 +120,7 @@ et environment (or shell) variable TARGET_INVENTORY=aws. The variable identifies
 Let's try
 ------------
 
-Run ./run.sh to run all at once, or go through the configurations and executions step by step below.
+Run ./run.sh to run all at once (create AWS IAM policy/role, VPC, subnet, router, SG, EC2, ..., setup K8S cluster and applications)  or go through the configurations and executions step by step below.
 
 ---
 
@@ -125,26 +130,6 @@ Configurations
 ### Parameters
 
 Parameters for an environment are all isolated in group_vars of the environment inventory. Go through the group_vars files to set values.
-
-#### EC2_KEYPAIR_NAME
-
-Set the AWS SSH keypair name to use to **EC2_KEYPAIR_NAME** as an enviornment variable and/or in aws.yml.
-
-#### ENV_ID
-
-ENV_ID in env.yml is used to tag the target environment and the tags are used to identify configuration items that belong to the enviornment, e.g. EC2 dynamic inventory hosts.
-
-#### Master node information
-Information of the master node instance. If run_aws.sh is used, it creates a file **master** which includs them and run_k8s.sh can use them. Otherwise set them in env.yml after having created the AWS instances.
-
-* K8S_MASTER_HOSTNAME
-* K8S_MASTER_NODE_IP
-
-#### REMOTE_USER
-Use the default Linux account (centos for CentOS EC2) that can sudo without password as the Ansible remote_user to run the playbooks If using another account, configure it and make sure it can sudo without password and configure .ssh/config.
-
-#### K8S_ADMIN and LINUX_USERS
-K8S_ADMIN user runs K8S operations once K8S is up. Set a name to be used as an account to K8S_ADMIN in server.yml. The account is creaated via LINUX_USERS in server.yml, and set the password in the corresponding field.  Use [mkpasswd as explained in Ansible document](http://docs.ansible.com/ansible/latest/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module).
 
 ```
 .
@@ -169,22 +154,44 @@ K8S_ADMIN user runs K8S operations once K8S is up. Set a name to be used as an a
 │                   └── hosts           <---- Target node(s) using tag values (set upon creating AWS env)
 ```
 
+#### EC2_KEYPAIR_NAME
+
+Set the AWS SSH keypair nameto **EC2_KEYPAIR_NAME** enviornment variable and in aws.yml.
+
+#### REMOTE_USER
+Set the default Linux account (centos for CentOS EC2) that can sudo without password as the Ansible remote_user to run the playbooks If using another account, configure it and make sure it can sudo without password and configure .ssh/config.
+
+#### ENV_ID
+
+Set the inventory name _aws_ to ENV_ID in env.yml which is used to tag the configuration items in AWS (e.g. EC2). The tags are then used to identify configuration items that belong to the enviornment, e.g. EC2 dynamic inventory hosts.
+
+#### Master node information
+Set **private** AWS DNS name and IP of the master node instance. If run_aws.sh is used, it creates a file **master** which includes them and run_k8s.sh uses them. Otherwise set them in env.yml and as environment variables after having created the AWS instances.
+
+* K8S_MASTER_HOSTNAME
+* K8S_MASTER_NODE_IP
+
+#### K8S_ADMIN and LINUX_USERS
+Set an account name to K8S_ADMIN in server.yml. The account is created by a playbook via LINUX_USERS in server.yml. Set an encrypted password in the corresponding field. Use [mkpasswd as explained in Ansible document](http://docs.ansible.com/ansible/latest/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module).
+
+
 Executions
 ------------
-Make sure the environment variables are set.
+Make sure the environment variables are set, and
 
 Environment variables:
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
 * EC2_KEYPAIR_NAME
 * REMOTE_USER
-* DATADOG_API_KEY (optional)
+* DATADOG_API_KEY
 
 Set TARGET_INVENTORY=aws variable which identifies the Ansible inventory **aws**  (same with ENV_ID) to use.
 
 ### AWS
 
 ```
+.
 ├── cluster
 ├── maintenance.sh
 ├── master
@@ -193,11 +200,11 @@ Set TARGET_INVENTORY=aws variable which identifies the Ansible inventory **aws**
 └── run_k8s.sh
 ```
 
-
 ### K8S
-In the directory, run run_k8s.sh. If DATADOG_API_KEY is not set, the 10_datadog module will cause errors but will continue.
+In the directory, run run_k8s.sh. If DATADOG_API_KEY is not set, the 10_datadog module will cause errors.
 
 ```
+.
 ├── cluster
 ├── maintenance.sh
 ├── master       <---- Make sure master node information is set in this file
@@ -225,7 +232,7 @@ Modules are:
 ```
 
 
-Test
+Tests
 ------------
 #### Guestbook appliaction.
 
@@ -239,13 +246,13 @@ The Ansible playbook of 20_applications shows the EXTERNAL-IP for the guestbook 
 ```
 Access ht<span>tp://</span>EXTERNAL-IP and it should show the page:
 
-<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/app.gustbook.png" width="450">
+<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/app.gustbook.png" width="500">
 
 #### Datadog
 
-Login to the Datadog and check its [dashboard](https://app.datadoghq.com/screen/integration/86/kubernetes?tv_mode=false).
+Login to the Datadog and check its [dashboard](https://app.datadoghq.com/screen/integration/86/kubernetes?tv_mode=false). 10_datadog module has setup tests to verify K8S API server, etcd, kubelet. Datadog agent pods reports metrics from [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) pod in the cluster, and from cAdvisor via kubelet, hence the cluster health and events such as pod killed by OOM can be verified.
 
-<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png" width="250">
+<img src="https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png" width="400">
 
 ---
 
@@ -373,3 +380,7 @@ References
 
 * [Rancher Docs - Kubernetes - Cloud Providers](http://rancher.com/docs/rancher/latest/en/kubernetes/providers/)
 * [K8S AWS Cloud Provider Notes](https://docs.google.com/document/d/17d4qinC_HnIwrK0GHnRlD1FKkTNdN__VO4TH9-EzbIY/edit)
+
+#### AWS
+
+* [SET UP YOUR AWS VPC WITH ANSIBLE 2.0](http://jeremievallee.com/2016/07/27/aws-vpc-ansible/)

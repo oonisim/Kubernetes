@@ -10,7 +10,7 @@ CLOUD_PROVIDER_POLICY_NAME: "K8S_CLOUD_PROVIDER_POLICY"
 # EC2
 #--------------------------------------------------------------------------------
 # EC2 SSH keypair to SSH login to the instances.
-ec2_key_name: "aws_maonishi_us-west-1.pem"
+EC2_KEYPAIR_NAME: "aws_maonishi_us-west-1.pem"
 
 # Amazon Security Group Name - this MUST already
 # exist before our Ansible scripts can be run.
@@ -27,7 +27,7 @@ vpc_name:       "VPC_K8S"
 vpc_cidr_block: "10.0.0.0/24"
 
 # For Security Group Rule
-my_ip:          "X.X.X.X"
+#my_ip:          "X.X.X.X"
 
 # Subnets
 public_subnet_1_cidr:  "10.0.0.0/24"

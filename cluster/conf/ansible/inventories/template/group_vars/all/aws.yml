@@ -2,7 +2,7 @@
 # EC2
 #--------------------------------------------------------------------------------
 # EC2 SSH keypair to SSH login to the instances.
-ec2_key_name: "aws_maonishi_us-west-1.pem"
+EC2_KEYPAIR_NAME: "aws_maonishi_us-west-1.pem"
 
 # Amazon Security Group Name - this MUST already
 # exist before our Ansible scripts can be run.
