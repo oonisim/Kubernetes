@@ -4,7 +4,7 @@
 # Go to the PLAYBOOK_DIR, setup Ansible inventory/cfg, invoke PALYER to play books
 # against the ENVIRONMENT.
 #--------------------------------------------------------------------------------
-set -u
+set -eu
 
 DIR=$(realpath $(dirname $0))
 
@@ -52,11 +52,12 @@ ln -sf ${CONF_DIR}/ansible/callbacks
 #--------------------------------------------------------------------------------
 # Let the player play the books.
 #--------------------------------------------------------------------------------
-VAULT_PASS_FILE=${CONF_DIR}/ansible/vaultpass.encrypted
-VAULT_PASS=$(${TOOL_DIR}/decrypt.sh ${DECRYPT_KEY_FILE} ${VAULT_PASS_FILE})
+#VAULT_PASS_FILE=${CONF_DIR}/ansible/vaultpass.encrypted
+#VAULT_PASS=$(${TOOL_DIR}/decrypt.sh ${DECRYPT_KEY_FILE} ${VAULT_PASS_FILE})
 #${PLAYER} ${VAULT_PASS} ${ARGS}
 
-ansible-playbook -vvvv -i hosts ${ARGS} site.yml --vault-password-file ~/.secret/.vault_pass.txt
+#ansible-playbook -vvvv -i hosts ${ARGS} site.yml --vault-password-file ~/.secret/.vault_pass.txt
+ansible-playbook -vvvv -i hosts ${ARGS} site.yml
 
 #--------------------------------------------------------------------------------
 # Clean up
