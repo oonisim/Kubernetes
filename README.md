@@ -74,6 +74,11 @@ Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_se
 
 Preparations
 ------------
+
+### Git
+
+Clone this.
+
 ### For AWS
 
 Have AWS access key_id, secret, and an AWS SSH keypair PEM file. MFA should not be used (or make sure to establish a session before execution).
