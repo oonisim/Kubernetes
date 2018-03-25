@@ -40,4 +40,4 @@ At the creation, Ansible msg shows the EXTERNAL-IP. Access http://<EXTERNAL-IP> 
 ]
 ```
 
-![Guest Book](https://github.com/oonisim/Kubernetes/blob/master/Images/datadog.k8s.png)
+![Guest Book](https://github.com/oonisim/Kubernetes/blob/master/Images/app.gustbook.png)
