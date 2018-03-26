@@ -220,7 +220,7 @@ In the directory, run run_k8s.sh. If DATADOG_API_KEY is not set, the 10_datadog 
 
 Alternatively, run each module one by one, and skip 10_datadog if not using.
 ```
-pushd ansible/k8s/<module>/scripts && main.sh or
+pushd ansible/k8s/<module>/scripts && ./main.sh or
 ansible/k8s/<module>/scripts/main.sh aws <ansible remote_user>
 ```
 
