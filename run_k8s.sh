@@ -51,7 +51,7 @@ fi
 #--------------------------------------------------------------------------------
 # Generate hosts file (/etc/hosts) from the EC2 instances created.
 #--------------------------------------------------------------------------------
-HOSTFILE="${DIR}/k8s/02_os/plays/roles/hosts/files/hosts"
+HOSTFILE="${DIR}/cluster/ansible/k8s/02_os/plays/roles/hosts/files/hosts"
 ./cluster/ansible/aws/ec2/operations/scripts/generate_hosts_file.sh ${TARGET_INVENTORY} ${HOSTFILE}
 
 #--------------------------------------------------------------------------------
