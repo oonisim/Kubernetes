@@ -51,8 +51,8 @@ fi
 #--------------------------------------------------------------------------------
 # Generate hosts file (/etc/hosts) from the EC2 instances created.
 #--------------------------------------------------------------------------------
-#HOSTFILE="${DIR}/k8s/02_os/plays/roles/hosts/files/hosts"
-#./aws/ec2/operations/scripts/generate_hosts_file.sh ${TARGET_INVENTORY} ${HOSTFILE}
+HOSTFILE="${DIR}/k8s/02_os/plays/roles/hosts/files/hosts"
+./aws/ec2/operations/scripts/generate_hosts_file.sh ${TARGET_INVENTORY} ${HOSTFILE}
 
 #--------------------------------------------------------------------------------
 # Run K8S setup
