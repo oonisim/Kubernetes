@@ -9,7 +9,7 @@
     group:    "{{ K8S_GROUP }}"
     mode:     0750
 
-- name: "Chage directory permission for {{ K8S_GROUP }} to reach {{ K8S_CA_HOME }}"
+- name: "Change directory permission for {{ K8S_GROUP }} to reach {{ K8S_CA_HOME }}"
   shell: |
     dir="{{ K8S_CA_HOME }}"
     while [[ ${dir} != "/etc" && -d ${dir} ]]; do chgrp {{ K8S_GROUP }} "${dir}" && chmod g+x "${dir}" && dir=$(dirname "${dir}"); done;
@@ -23,6 +23,6 @@
     group:    "{{ K8S_GROUP }}"
     mode:     0640
   with_items:
-    - "{{ ETCD_CLIENT_CRT }}"
-    - "{{ ETCD_CLIENT_KEY }}"
-    - "{{ ETCD_CA_CRT }}"
+    - "{{ APISERVER_CLIENT_CRT }}"
+    - "{{ APISERVER_CLIENT_KEY }}"
+    - "{{ APISERVER_CA_CRT }}"

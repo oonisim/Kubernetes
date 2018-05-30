@@ -51,7 +51,11 @@ DOCKER_USERS:
 # Etcd
 #--------------------------------------------------------------------------------
 ETCD_CONFIG_HOME: "/etc/kubernetes"
-ETCD_CA_HOME: "{{ ETCD_CONFIG_HOME }}"
+ETCD_CA_HOME: "{{ ETCD_CONFIG_HOME }}/pki/etcd"
+
+ETCD_CA_CRT:          "{{ ETCD_CA_HOME }}/ca.crt"
+ETCD_CLIENT_CRT:      "{{ ETCD_CA_HOME }}/healthcheck-client.crt"
+ETCD_CLIENT_KEY:      "{{ ETCD_CA_HOME }}/healthcheck-client.key"
 
 #--------------------------------------------------------------------------------
 # K8S configuration file path
@@ -59,8 +63,16 @@ ETCD_CA_HOME: "{{ ETCD_CONFIG_HOME }}"
 K8S_CONFIG_HOME: "/etc/kubernetes"
 K8S_CONFIG_FILE: "{{ K8S_CONFIG_HOME}}/config"
 # K8S_CONFIG_HOME gets removed at the K8S installation cleanup.
-K8S_CA_HOME: "{{ K8S_CONFIG_HOME }}/pki"
+K8S_CA_HOME:    "{{ K8S_CONFIG_HOME }}/pki"
 KUBELET_CONFIG_FILE: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+
+APISERVER_CLIENT_CRT: "{{ K8S_CA_HOME }}/apiserver-kubelet-client.crt"
+APISERVER_CLIENT_KEY: "{{ K8S_CA_HOME }}/apiserver-kubelet-client.key"
+APISERVER_CA_CRT:     "{{ K8S_CA_HOME }}/ca.crt"
+
+KUBELET_CLIENT_CRT:   "{{ K8S_CA_HOME }}/apiserver-kubelet-client.crt"
+KUBELET_CLIENT_KEY:   "{{ K8S_CA_HOME }}/apiserver-kubelet-client.key"
+KUBELET_CA_CRT:       /var/lib/kubelet/pki/kubelet.crt
 
 
 #--------------------------------------------------------------------------------
@@ -94,10 +106,7 @@ K8S_PACKAGES_PREREQUISITES:
 K8S_PACKAGES_PREREQUISITES_REMOVE: "{{ K8S_PACKAGES_PREREQUISITES }}"
 #  - kubernetes-cni
 
-K8S_VERSION_186: 1.8.6-0
-K8S_VERSION_190: 1.9.0-0
-K8S_VERSION_191: 1.9.1-0
-K8S_VERSION_191: 1.9.6-0
+K8S_VERSION_196: 1.9.6-0
 K8S_VERSION: "{{ K8S_VERSION_196 }}"
 
 K8S_PACKAGES:
@@ -130,21 +139,4 @@ K8S_NETWORK_SERVICES:
   - flanneld
 
 KUBEPROXY_PORT: 8001
-
-
-#--------------------------------------------------------------------------------
-# K8S Certificates for client certificate authentications
-#--------------------------------------------------------------------------------
-APISERVER_CLIENT_CRT: /etc/kubernetes/pki/apiserver-kubelet-client.crt
-APISERVER_CLIENT_KEY: /etc/kubernetes/pki/apiserver-kubelet-client.key
-APISERVER_CA_CRT:     /etc/kubernetes/pki/ca.crt
-
-KUBELET_CLIENT_CRT:   /etc/kubernetes/pki/apiserver-kubelet-client.crt
-KUBELET_CLIENT_KEY:   /etc/kubernetes/pki/apiserver-kubelet-client.key
-KUBELET_CA_CRT:       /var/lib/kubelet/pki/kubelet.crt
-
-ETCD_CA_CRT:          /etc/kubernetes/pki/ca.crt
-# Dummy
-ETCD_CLIENT_CRT:      /etc/kubernetes/pki/apiserver-kubelet-client.crt
-ETCD_CLIENT_KEY:      /etc/kubernetes/pki/apiserver-kubelet-client.key
 
