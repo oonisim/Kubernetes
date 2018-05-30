@@ -74,6 +74,12 @@ Module is a set of playbooks and roles to execute a specific task e.g. 03_k8s_se
 
 Preparations
 ------------
+### MacOS
+To be able to user [realpath](https://stackoverflow.com/questions/3572030/bash-script-absolute-path-with-osx).
+```
+brew install coreutils
+```
+
 
 ### Git
 
